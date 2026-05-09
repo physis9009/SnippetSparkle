@@ -18,3 +18,14 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@layer utilities {
+    .card-responsive {
+        @apply min-w-[100px] max-w-[250px] min-h-[180px] max-h-[300px];
+    }
+    @media (min-width: 640px) {
+        .card-responsive {
+            @apply min-w-[250px] max-w-[400px] min-h-[250px] max-h-[400px];
+        }
+    }
+}

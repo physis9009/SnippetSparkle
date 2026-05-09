@@ -36,6 +36,7 @@ export default function RootLayout({
         dark:bg-blk
         selection:bg-grn
         selection:dark:bg-pnk
+        w-screen h-screen
       ">{children}</body>
     </html>
   );
