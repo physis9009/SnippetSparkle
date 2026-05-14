@@ -7,6 +7,7 @@ export type Snippet = {
   summary: string;
   code: string;
   analysis: string;
+  tags: string[];
   created_at: string; // ISO 日期字符串
 };
 
