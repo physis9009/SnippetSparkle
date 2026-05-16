@@ -4,8 +4,10 @@
 
 @theme {
   --color-wht: #fcf9f2;
-  --color-blk: #2b2b2b;
+  --color-wht-md: #f2efe8;
   --color-wht-gr: #e8e4db;
+  --color-blk: #2b2b2b;
+  --color-blk-md: #3a3a3a;
   --color-blk-gr: #4a4a4a;
   --color-grn: #8baa6e;
   --color-grn-gr: #94a886;
