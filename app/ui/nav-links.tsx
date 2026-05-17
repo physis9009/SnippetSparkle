@@ -15,8 +15,12 @@ export default function Page() {
     return (
         <>
             {links.map((link) => (
-                <Link key={link.name} href={link.href}
-                className={clsx(pathname === link.href && 'bg-blk text-wht-gr')}>
+                <Link key={pathname === link.href ? undefined : link.name} href={link.href}
+                className={clsx(
+                    "w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center", 
+                    [pathname === link.href && 'bg-blk text-wht-gr cursor-default italic'], 
+                    [pathname !== link.href && 'hover:text-wht hover:bg-blk-gr hover:font-bold']
+                )}>
                     {link.name}
                 </Link>
             ))}
