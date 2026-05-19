@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import {snippets, tags} from '../lib/placeholder-data';
+import {snippets, tags} from '@/app/lib/placeholder-data';
 
 const sql = postgres(process.env.POSTGRES_URL!, {ssl: 'require'});
 
