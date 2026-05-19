@@ -1,9 +1,0 @@
-import CardFlow from "./ui/cardflow";
-
-export default function Home() {
-  return (
-    <main className="flex-1 overflow-auto">
-      <CardFlow />
-    </main>
-  );
-}

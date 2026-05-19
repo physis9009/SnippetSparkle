@@ -29,16 +29,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-screen antialiased`}
     >
       <body className="
-        text-blk-gr
-        dark:text-wht-gr
-        selection:text-wht
-        selection:dark:text-blk
-        bg-wht
-        dark:bg-blk
-        selection:bg-grn
-        selection:dark:bg-pnk
+        text-wht-md
+        selection:text-blk
+        bg-blk
+        selection:bg-pnk-gr
         w-screen h-screen
         flex flex-col sm:flex-row
+        custom-scrollbar
       ">
         <Navigation />
         {children}

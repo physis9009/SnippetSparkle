@@ -14,7 +14,7 @@ export default async function CardFlow() {
                     style={{ minWidth: '100%', width: '100%', maxHeight: '400px', overflowY: 'auto' }}    
                     className='
                         card-responsive break-inside-avoid mb-2 rounded-sm p-3 block box-border bg-blk
-                        cursor-pointer hover:shadow-blk-gr/80 hover:shadow-md transition-shadow
+                        cursor-pointer hover:shadow-blk-gr/80 hover:shadow-md transition-shadow custom-scrollbar
                     '>
                         <code 
                         className='text-xs sm:text-sm whitespace-pre-wrap wrap-break-words w-full'
