@@ -11,6 +11,8 @@ export type Snippet = {
   created_at: string; // ISO 日期字符串
 };
 
+export const supportedLanguage: string[] = [];
+
 export type Tag = {
   id: string;
   name: string;
