@@ -1,11 +1,8 @@
 const snippets = [
   {
-    id: 'q-rsqrt',
-    title: 'Quake III 快速反平方根',
+    title: 'Quake III Fast Inverse Square Root',
     language: 'C',
-    author: 'John Carmack',
-    source: 'Quake III Arena 源码',
-    summary: '用魔术数字和牛顿法快速计算 1/√x，位运算与浮点思想的惊人组合。',
+    summary: 'Use magic number and Newton\'s method to quickly compute 1/√x, an astonishing combination of bit manipulation and floating-point thinking.',
     code: `float Q_rsqrt(float number) {
     long i;
     float x2, y;
@@ -18,34 +15,24 @@ const snippets = [
     y  = y * (threehalfs - (x2 * y * y));
     return y;
 }`,
-    analysis: `利用 IEEE 754 浮点数的内部表示，通过整数右移操作粗略近似对数运算，魔术数字 0x5f3759df 提供了初始估计。
-之后一步牛顿迭代将精度提到足够实用水平，避免反复迭代的开销。`,
-    tags: ['位运算技巧', '浮点黑魔法', '性能优化'],
+    tags: ['bit-hacks', 'floating-point-black-magic', 'performance-optimization'],
     created_at: '2024-01-10T00:00:00.000Z',
   },
   {
-    id: 'container-of',
-    title: 'Linux 内核的 container_of 宏',
+    title: 'Linux Kernel\'s container_of Macro',
     language: 'C',
-    author: '内核社区 (Greg Kroah-Hartman 等)',
-    source: 'Linux 内核 include/linux/kernel.h',
-    summary: '通过成员指针、成员名和结构体类型，回溯拿到整个结构体的地址。',
+    summary: 'Given a member pointer, member name, and struct type, retrieve the address of the containing struct.',
     code: `#define container_of(ptr, type, member) ({                    \\
     const typeof(((type *)0)->member) *__mptr = (ptr);     \\
     (type *)((char *)__mptr - offsetof(type, member));     \\
 })`,
-    analysis: `typeof 获取成员类型以进行类型安全检查，offsetof 计算出成员在结构体中的偏移。
-用已知成员地址减去偏移即得结构体首地址，将双向链表等通用结构变得无比灵活。`,
-    tags: ['宏技巧', '数据结构', '侵入式设计'],
+    tags: ['macro-tricks', 'data-structures', 'intrusive-design'],
     created_at: '2024-01-10T00:00:00.000Z',
   },
   {
-    id: 'redis-skiplist',
-    title: 'Redis 跳跃表插入',
+    title: 'Redis Skip List Insert',
     language: 'C',
-    author: 'Salvatore Sanfilippo',
-    source: 'Redis t_zset.c',
-    summary: '通过概率化的多层索引，使有序集插入/查找平均 O(log N)。',
+    summary: 'Probabilistic multi-layer index providing average O(log N) insert/search for sorted sets.',
     code: `zskiplistNode *zslInsert(zskiplist *zsl, double score, sds ele) {
     zskiplistNode *update[ZSKIPLIST_MAXLEVEL], *x;
     unsigned int rank[ZSKIPLIST_MAXLEVEL];
@@ -88,18 +75,13 @@ const snippets = [
     zsl->length++;
     return x;
 }`,
-    analysis: `用 update 数组记录每层前驱，rank 记录跨度以实现按排名查询。
-随机层数保证概率平衡，插入时只需局部修改前后指针。`,
-    tags: ['概率数据结构', '对数复杂度', '高效搜索'],
+    tags: ['probabilistic-data-structure', 'logarithmic-complexity', 'efficient-search'],
     created_at: '2024-02-15T00:00:00.000Z',
   },
   {
-    id: 'spsc-queue',
-    title: '单生产者单消费者无锁队列',
+    title: 'Single-Producer Single-Consumer Lock-Free Queue',
     language: 'C++',
-    author: 'Dmitry Vyukov',
-    source: '1024cores.net',
-    summary: '仅用原子操作和内存屏障实现无锁 FIFO，极低延迟。',
+    summary: 'Lock-free FIFO using only atomic operations and memory barriers, very low latency.',
     code: `template <typename T, size_t N>
 class spsc_queue {
     T buffer_[N];
@@ -122,18 +104,13 @@ public:
         return true;
     }
 };`,
-    analysis: `生产者和消费者各自拥有一个游标，通过宽松/获取/释放内存序避免不必要的同步开销。
-满/空判断基于位置差，避免额外同步变量。`,
-    tags: ['无锁编程', '内存模型', '高性能'],
+    tags: ['lock-free-programming', 'memory-model', 'high-performance'],
     created_at: '2024-02-20T00:00:00.000Z',
   },
   {
-    id: 'cached-property',
-    title: 'Python 带缓存的属性装饰器',
+    title: 'Python Cached Property Decorator',
     language: 'Python',
-    author: 'Python 社区模式',
-    source: '常见于 Django/SQLAlchemy 等',
-    summary: '用描述符实现惰性计算并缓存结果，提高属性访问效率。',
+    summary: 'Lazy computation with result caching using a descriptor to improve property access efficiency.',
     code: `class cached_property:
     def __init__(self, func):
         self.func = func
@@ -144,18 +121,13 @@ public:
         value = self.func(instance)
         instance.__dict__[self.name] = value
         return value`,
-    analysis: `首次访问时调用原函数并将结果存入实例字典，后续访问直接跳过函数调用。
-避免了 @property 每次重新计算的开销。`,
-    tags: ['设计模式', '惰性求值', '语言特性妙用'],
+    tags: ['design-pattern', 'lazy-evaluation', 'language-feature-magic'],
     created_at: '2024-03-05T00:00:00.000Z',
   },
   {
-    id: 'goroutine-leak',
-    title: 'Go 的 Goroutine 泄漏检测',
+    title: 'Go Goroutine Leak Detection',
     language: 'Go',
-    author: 'Uber 贡献者',
-    source: 'go.uber.org/goleak',
-    summary: '利用 runtime.Stack() 检查测试结束时残留的 goroutine，防止泄漏。',
+    summary: 'Use runtime.Stack() to check for leftover goroutines at test end, preventing leaks.',
     code: `func VerifyNoLeaks(t testing.TB) {
     before := runtime.NumGoroutine()
     defer func() {
@@ -168,18 +140,13 @@ public:
         }
     }()
 }`,
-    analysis: `在函数入口记录 goroutine 数，出口处比较并输出所有协程栈。
-简单的思想却极其实用，巧妙利用了测试框架的 defer。`,
-    tags: ['测试技巧', '资源管理', '调试'],
+    tags: ['testing-tricks', 'resource-management', 'debugging'],
     created_at: '2024-03-12T00:00:00.000Z',
   },
   {
-    id: 'next-pow2',
-    title: '快速计算下一个 2 的幂',
+    title: 'Fast Next Power of Two',
     language: 'C',
-    author: '未知 (著名算法)',
-    source: '常见于哈希表实现',
-    summary: '用位扩散手法将任意整数转换到不小于它的最小 2 的幂。',
+    summary: 'Bit-spreading technique to convert any integer to the smallest power of two not less than it.',
     code: `unsigned int next_pow2(unsigned int x) {
     x--;
     x |= x >> 1;
@@ -189,18 +156,13 @@ public:
     x |= x >> 16;
     return x+1;
 }`,
-    analysis: `先将 x 减 1 确保边界正确，然后通过连续或操作让所有低位变为 1，最后加 1 得到 2 的幂。
-纯位运算，无分支，编译器可极好优化。`,
-    tags: ['位运算技巧', '高性能', '哈希算法'],
+    tags: ['bit-hacks', 'high-performance', 'hash-algorithms'],
     created_at: '2024-04-02T00:00:00.000Z',
   },
   {
-    id: 'bloom-filter',
-    title: '位图索引快速判重（布隆过滤器）',
+    title: 'Bloom Filter for Fast Duplicate Checking',
     language: 'Java',
-    author: 'Google Guava 团队',
-    source: 'Guava BloomFilter 实现简化版',
-    summary: '用多个哈希函数操作位图，判断元素是否存在，内存效率极高。',
+    summary: 'Use multiple hash functions on a bitset to test membership with extremely high memory efficiency.',
     code: `boolean mightContain(byte[] buf, int m, int k) {
     BitArray bits = new BitArray(m);
     for (int i = 0; i < k; i++) {
@@ -209,18 +171,13 @@ public:
     }
     return true;
 }`,
-    analysis: `对输入计算 k 个独立哈希，全部位为 1 时才可能存在，有误判但绝无漏判。
-内存只需 m 比特，适合大规模去重。`,
-    tags: ['概率数据结构', '空间优化', '哈希设计'],
+    tags: ['probabilistic-data-structure', 'space-optimization', 'hash-design'],
     created_at: '2024-04-15T00:00:00.000Z',
   },
   {
-    id: 'duffs-device',
-    title: 'C 语言的 Duff\'s Device',
+    title: 'C Language Duff\'s Device',
     language: 'C',
-    author: 'Tom Duff',
-    source: '邮件列表, 1983',
-    summary: '将 switch 和 do-while 交织，实现循环展开的极限优化。',
+    summary: 'Interleave switch and do-while to achieve extreme loop unrolling optimization.',
     code: `send(to, from, count)
 register short *to, *from;
 register count;
@@ -238,18 +195,13 @@ register count;
             } while (--n > 0);
     }
 }`,
-    analysis: `通过 switch 跳转到循环内对应剩余次数的 case，然后一个 do-while 完成批量复制。
-减少了循环条件判断次数，显著提升内存拷贝速度。`,
-    tags: ['循环展开', '编译器合作', '奇技淫巧'],
+    tags: ['loop-unrolling', 'compiler-cooperation', 'clever-hack'],
     created_at: '2024-04-28T00:00:00.000Z',
   },
   {
-    id: 'elixir-parser',
-    title: '利用尾递归优化解析器',
+    title: 'Tail-Recursive Parser in Elixir',
     language: 'Elixir',
-    author: 'José Valim',
-    source: 'Elixir 标准库解析器',
-    summary: '用尾递归和模式匹配构建低开销的 Token 解析循环。',
+    summary: 'Use tail recursion and pattern matching to build a low-overhead token parsing loop.',
     code: `defp parse_tokens(<<>>, acc), do: Enum.reverse(acc)
 defp parse_tokens(<<char, rest::binary>>, acc) when char in ?0..?9 do
     {num, rest2} = parse_integer(rest, char - ?0)
@@ -258,18 +210,13 @@ end
 defp parse_tokens(<<char, rest::binary>>, acc) do
     parse_tokens(rest, [{:op, char} | acc])
 end`,
-    analysis: `每次只匹配头部一个字符，立即分解任务而不用维护额外状态机。
-尾调用优化使递归不消耗栈空间。`,
-    tags: ['函数式编程', '解析器设计', '尾递归优化'],
+    tags: ['functional-programming', 'parser-design', 'tail-call-optimization'],
     created_at: '2024-05-05T00:00:00.000Z',
   },
   {
-    id: 'kfifo',
-    title: 'Linux 内核的循环缓冲区 kfifo',
+    title: 'Linux Kernel\'s kfifo Circular Buffer',
     language: 'C',
-    author: '内核社区',
-    source: 'include/linux/kfifo.h',
-    summary: '利用无符号整数溢出和内存屏障构建无锁循环队列。',
+    summary: 'Unsigned integer overflow and memory barriers construct a lock-free circular queue.',
     code: `#define kfifo_put(fifo, val) \\
 ({ \\
     typeof(val) __val = (val); \\
@@ -280,18 +227,13 @@ end`,
     smp_wmb(); \\
     __kfifo->in++; \\
 })`,
-    analysis: `通过内存屏障保证写入顺序，无符号索引自然回绕，取模运算被与运算替代。
-等待循环用 cpu_relax 降低功耗。`,
-    tags: ['无锁编程', '内存屏障', '内核技巧'],
+    tags: ['lock-free-programming', 'memory-barrier', 'kernel-tricks'],
     created_at: '2024-05-18T00:00:00.000Z',
   },
   {
-    id: 'python-with',
-    title: 'Python 的 with 上下文管理器实现',
+    title: 'Python \'with\' Context Manager Implementation',
     language: 'Python',
-    author: 'Guido van Rossum',
-    source: 'CPython 中 contextlib.contextmanager',
-    summary: '用生成器函数的 yield 分割前置和后置逻辑，简化资源管理。',
+    summary: 'Use generator function yield to separate pre and post logic, simplifying resource management.',
     code: `from contextlib import contextmanager
 @contextmanager
 def open_file(name, mode):
@@ -300,18 +242,13 @@ def open_file(name, mode):
         yield f
     finally:
         f.close()`,
-    analysis: `yield 之前的代码是 __enter__，之后的代码是 __exit__，即使异常也能执行清理。
-装饰器将生成器协议与传统类实现统一。`,
-    tags: ['语言特性', '资源管理', '代码模式'],
+    tags: ['language-feature', 'resource-management', 'code-pattern'],
     created_at: '2024-06-01T00:00:00.000Z',
   },
   {
-    id: 'redis-sds',
-    title: 'Redis 的 sds 动态字符串',
+    title: 'Redis sds Dynamic String',
     language: 'C',
-    author: 'Salvatore Sanfilippo',
-    source: 'Redis sds.h',
-    summary: '在 C 字符串头部附加长度信息，实现 O(1) 取长度和高效扩容。',
+    summary: 'Store length information ahead of C string for O(1) length retrieval and efficient resizing.',
     code: `struct __attribute__ ((__packed__)) sdshdr8 {
     uint8_t len;
     uint8_t alloc;
@@ -321,18 +258,13 @@ def open_file(name, mode):
 static inline size_t sdslen(const sds s) {
     return ((struct sdshdr8 *)(s - 1))->len;
 }`,
-    analysis: `将元数据存储在返回指针前方，利用指针算术无额外开销。
-同时记录已分配空间，避免反复 realloc。`,
-    tags: ['内存管理', '数据结构', '嵌入式元信息'],
+    tags: ['memory-management', 'data-structures', 'embedded-metadata'],
     created_at: '2024-06-12T00:00:00.000Z',
   },
   {
-    id: 'quicksort-3way',
-    title: '快速排序的三向切分',
+    title: '3-Way Partition Quicksort',
     language: 'C',
-    author: 'Bentley & McIlroy',
-    source: '"Engineering a Sort Function"',
-    summary: '将数组分成小于、等于、大于三部分，对包含大量重复的数组近乎线性。',
+    summary: 'Split array into less, equal, greater parts, nearly linear for data with many duplicates.',
     code: `void quicksort(int a[], int l, int r) {
     if (r <= l) return;
     int i = l-1, j = r, p = l-1, q = r;
@@ -352,18 +284,13 @@ static inline size_t sdslen(const sds s) {
     quicksort(a,l,j);
     quicksort(a,i,r);
 }`,
-    analysis: `将等于 pivot 的元素收集到两端，最后归位，中间段不再处理。
-对重复键极多的数据可达到 O(n) 时间。`,
-    tags: ['排序算法', '重复数据优化', '经典实现'],
+    tags: ['sorting-algorithm', 'duplicate-data-optimization', 'classic-implementation'],
     created_at: '2024-06-26T00:00:00.000Z',
   },
   {
-    id: 'zero-length-array',
-    title: '零长度数组实现变长结构体',
+    title: 'Zero-Length Array for Variable-Length Struct',
     language: 'C',
-    author: '内核开发者',
-    source: 'Linux 网络缓冲区 sk_buff',
-    summary: '在结构体末尾声明零长度数组，一次分配获得结构体和动态缓冲区。',
+    summary: 'Declare zero-length array at struct end to allocate struct and dynamic buffer together.',
     code: `struct msg {
     uint32_t len;
     char data[];
@@ -371,18 +298,13 @@ static inline size_t sdslen(const sds s) {
 struct msg *m = malloc(sizeof(*m) + payload_len);
 m->len = payload_len;
 memcpy(m->data, buf, payload_len);`,
-    analysis: `数组不占空间，但可作为首地址使用，分配时只需计算偏移。
-避免二次分配和指针分离，提高缓存局部性。`,
-    tags: ['内存打包', '数据结构', '性能'],
+    tags: ['memory-packing', 'data-structures', 'performance'],
     created_at: '2024-07-08T00:00:00.000Z',
   },
   {
-    id: 'sync-once',
-    title: 'Go 的同步原语 sync.Once',
+    title: 'Go sync.Once Primitive',
     language: 'Go',
-    author: 'Go 团队',
-    source: 'sync/once.go',
-    summary: '用原子操作 + 互斥锁实现函数仅执行一次，最小化快速路径开销。',
+    summary: 'Use atomic operation + mutex to execute a function exactly once, minimizing fast-path overhead.',
     code: `func (o *Once) Do(f func()) {
     if atomic.LoadUint32(&o.done) == 0 {
         o.doSlow(f)
@@ -396,18 +318,13 @@ func (o *Once) doSlow(f func()) {
         atomic.StoreUint32(&o.done, 1)
     }
 }`,
-    analysis: `快速路径只用一次原子读取，无锁竞争。
-慢路径双重检查，保证并发安全且仅执行一次。`,
-    tags: ['并发控制', '原子操作', '设计模式'],
+    tags: ['concurrency-control', 'atomic-operation', 'design-pattern'],
     created_at: '2024-07-21T00:00:00.000Z',
   },
   {
-    id: 'bit-reverse',
-    title: '位反转的奇技',
+    title: 'Bit Reversal Trick',
     language: 'C',
-    author: '未知 (Bit Twiddling Hacks)',
-    source: 'graphics.stanford.edu/~seander/bithacks.html',
-    summary: '通过分治掩码交换比特，15 次操作完成 32 位整数的位反转。',
+    summary: 'Swap bit pairs via divide-and-conquer masks, reversing 32-bit integer in 15 operations.',
     code: `unsigned int reverse(unsigned int x) {
     x = ((x >> 1) & 0x55555555) | ((x & 0x55555555) << 1);
     x = ((x >> 2) & 0x33333333) | ((x & 0x33333333) << 2);
@@ -416,114 +333,97 @@ func (o *Once) doSlow(f func()) {
     x = ( x >> 16 ) | ( x << 16 );
     return x;
 }`,
-    analysis: `每步交换相邻的 1、2、4、8、16 位对，合并后即完成整体反转。
-无分支，可流水线高效执行。`,
-    tags: ['位运算技巧', '分治', '无分支编程'],
+    tags: ['bit-hacks', 'divide-and-conquer', 'branchless-programming'],
     created_at: '2024-08-04T00:00:00.000Z',
   },
   {
-    id: 'do-while-0',
-    title: 'C 语言 do{...}while(0) 宏保护',
+    title: 'C Language do{...}while(0) Macro Protection',
     language: 'C',
-    author: '内核社区',
-    source: 'Linux 内核各类宏',
-    summary: '允许多语句宏安全地出现在 if-else 等结构中，且强制分号。',
+    summary: 'Allow multi-statement macros to appear safely in if-else constructs and enforce a semicolon.',
     code: `#define LOG(msg, ...) \\
     do { \\
         fprintf(stderr, "[%s:%d] " msg, __FILE__, __LINE__, ##__VA_ARGS__); \\
     } while(0)`,
-    analysis: `do{...}while(0) 是一个语句块，能被 if-else 正确配对。
-末尾 while(0) 要求调用者添加分号，符合语句习惯。`,
-    tags: ['预处理器技巧', '防御性编程', '宏安全'],
+    tags: ['preprocessor-tricks', 'defensive-programming', 'macro-safety'],
     created_at: '2024-08-19T00:00:00.000Z',
   },
   {
-    id: 'unsigned-sub',
-    title: '无符号减法做饱和运算（TCP 序号比较）',
+    title: 'Unsigned Subtraction for Saturation (TCP Sequence Comparison)',
     language: 'C',
-    author: '很多网络协议栈',
-    source: 'TCP 序列号比较',
-    summary: '使用无符号减法的自然回绕判断时序先后，避免单次比较的溢出问题。',
+    summary: 'Use natural wrap-around of unsigned subtraction to determine order, avoiding overflow issues.',
     code: `/* Return true if seq1 < seq2 */
 int before(unsigned int seq1, unsigned int seq2) {
     return (int)(seq1 - seq2) < 0;
 }`,
-    analysis: `无符号差转为有符号比较，自动处理 32 位回绕。
-极大简化滑动窗口协议的状态判断。`,
-    tags: ['溢出利用', '协议设计', '位运算'],
+    tags: ['overflow-exploitation', 'protocol-design', 'bit-manipulation'],
     created_at: '2024-09-02T00:00:00.000Z',
   },
   {
-    id: 'select-timeout',
-    title: '利用 select 实现超时重试',
+    title: 'Timeout Retry Using select',
     language: 'Python',
-    author: '社区常用模式',
-    source: '网络库中常见',
-    summary: '在 socket 上设置超时并等待可写可读，简洁实现带超时的网络操作。',
+    summary: 'Set timeout on socket and wait for writable/readable, implementing timed network operations cleanly.',
     code: `import select
 def send_timeout(sock, data, timeout=5):
     _, wlist, _ = select.select([], [sock], [], timeout)
     if wlist:
         return sock.send(data)
     raise TimeoutError()`,
-    analysis: `select 阻塞等待直至 socket 可写或超时，单次调用完成等待和判断。
-避免手动轮询和复杂的定时器管理。`,
-    tags: ['网络编程', '超时模式', '系统调用复用'],
+    tags: ['network-programming', 'timeout-pattern', 'syscall-reuse'],
     created_at: '2024-09-15T00:00:00.000Z',
   },
 ];
 
 const tags = [
-  { id: '位运算技巧', name: '位运算技巧' },
-  { id: '浮点黑魔法', name: '浮点黑魔法' },
-  { id: '性能优化', name: '性能优化' },
-  { id: '宏技巧', name: '宏技巧' },
-  { id: '数据结构', name: '数据结构' },
-  { id: '侵入式设计', name: '侵入式设计' },
-  { id: '概率数据结构', name: '概率数据结构' },
-  { id: '对数复杂度', name: '对数复杂度' },
-  { id: '高效搜索', name: '高效搜索' },
-  { id: '无锁编程', name: '无锁编程' },
-  { id: '内存模型', name: '内存模型' },
-  { id: '高性能', name: '高性能' },
-  { id: '设计模式', name: '设计模式' },
-  { id: '惰性求值', name: '惰性求值' },
-  { id: '语言特性妙用', name: '语言特性妙用' },
-  { id: '测试技巧', name: '测试技巧' },
-  { id: '资源管理', name: '资源管理' },
-  { id: '调试', name: '调试' },
-  { id: '哈希算法', name: '哈希算法' },
-  { id: '空间优化', name: '空间优化' },
-  { id: '哈希设计', name: '哈希设计' },
-  { id: '循环展开', name: '循环展开' },
-  { id: '编译器合作', name: '编译器合作' },
-  { id: '奇技淫巧', name: '奇技淫巧' },
-  { id: '函数式编程', name: '函数式编程' },
-  { id: '解析器设计', name: '解析器设计' },
-  { id: '尾递归优化', name: '尾递归优化' },
-  { id: '内存屏障', name: '内存屏障' },
-  { id: '内核技巧', name: '内核技巧' },
-  { id: '语言特性', name: '语言特性' },
-  { id: '代码模式', name: '代码模式' },
-  { id: '内存管理', name: '内存管理' },
-  { id: '嵌入式元信息', name: '嵌入式元信息' },
-  { id: '排序算法', name: '排序算法' },
-  { id: '重复数据优化', name: '重复数据优化' },
-  { id: '经典实现', name: '经典实现' },
-  { id: '内存打包', name: '内存打包' },
-  { id: '性能', name: '性能' },
-  { id: '并发控制', name: '并发控制' },
-  { id: '原子操作', name: '原子操作' },
-  { id: '分治', name: '分治' },
-  { id: '无分支编程', name: '无分支编程' },
-  { id: '预处理器技巧', name: '预处理器技巧' },
-  { id: '防御性编程', name: '防御性编程' },
-  { id: '宏安全', name: '宏安全' },
-  { id: '溢出利用', name: '溢出利用' },
-  { id: '协议设计', name: '协议设计' },
-  { id: '网络编程', name: '网络编程' },
-  { id: '超时模式', name: '超时模式' },
-  { id: '系统调用复用', name: '系统调用复用' },
+  { name: 'bit-hacks', displayName: 'Bit Hacks' },
+  { name: 'floating-point-black-magic', displayName: 'Floating-point Black Magic' },
+  { name: 'performance-optimization', displayName: 'Performance Optimization' },
+  { name: 'macro-tricks', displayName: 'Macro Tricks' },
+  { name: 'data-structures', displayName: 'Data Structures' },
+  { name: 'intrusive-design', displayName: 'Intrusive Design' },
+  { name: 'probabilistic-data-structure', displayName: 'Probabilistic Data Structure' },
+  { name: 'logarithmic-complexity', displayName: 'Logarithmic Complexity' },
+  { name: 'efficient-search', displayName: 'Efficient Search' },
+  { name: 'lock-free-programming', displayName: 'Lock-Free Programming' },
+  { name: 'memory-model', displayName: 'Memory Model' },
+  { name: 'high-performance', displayName: 'High Performance' },
+  { name: 'design-pattern', displayName: 'Design Pattern' },
+  { name: 'lazy-evaluation', displayName: 'Lazy Evaluation' },
+  { name: 'language-feature-magic', displayName: 'Language Feature Magic' },
+  { name: 'testing-tricks', displayName: 'Testing Tricks' },
+  { name: 'resource-management', displayName: 'Resource Management' },
+  { name: 'debugging', displayName: 'Debugging' },
+  { name: 'hash-algorithms', displayName: 'Hash Algorithms' },
+  { name: 'space-optimization', displayName: 'Space Optimization' },
+  { name: 'hash-design', displayName: 'Hash Design' },
+  { name: 'loop-unrolling', displayName: 'Loop Unrolling' },
+  { name: 'compiler-cooperation', displayName: 'Compiler Cooperation' },
+  { name: 'clever-hack', displayName: 'Clever Hack' },
+  { name: 'functional-programming', displayName: 'Functional Programming' },
+  { name: 'parser-design', displayName: 'Parser Design' },
+  { name: 'tail-call-optimization', displayName: 'Tail Call Optimization' },
+  { name: 'memory-barrier', displayName: 'Memory Barrier' },
+  { name: 'kernel-tricks', displayName: 'Kernel Tricks' },
+  { name: 'language-feature', displayName: 'Language Feature' },
+  { name: 'code-pattern', displayName: 'Code Pattern' },
+  { name: 'memory-management', displayName: 'Memory Management' },
+  { name: 'embedded-metadata', displayName: 'Embedded Metadata' },
+  { name: 'sorting-algorithm', displayName: 'Sorting Algorithm' },
+  { name: 'duplicate-data-optimization', displayName: 'Duplicate Data Optimization' },
+  { name: 'classic-implementation', displayName: 'Classic Implementation' },
+  { name: 'memory-packing', displayName: 'Memory Packing' },
+  { name: 'performance', displayName: 'Performance' },
+  { name: 'concurrency-control', displayName: 'Concurrency Control' },
+  { name: 'atomic-operation', displayName: 'Atomic Operation' },
+  { name: 'divide-and-conquer', displayName: 'Divide and Conquer' },
+  { name: 'branchless-programming', displayName: 'Branchless Programming' },
+  { name: 'preprocessor-tricks', displayName: 'Preprocessor Tricks' },
+  { name: 'defensive-programming', displayName: 'Defensive Programming' },
+  { name: 'macro-safety', displayName: 'Macro Safety' },
+  { name: 'overflow-exploitation', displayName: 'Overflow Exploitation' },
+  { name: 'protocol-design', displayName: 'Protocol Design' },
+  { name: 'network-programming', displayName: 'Network Programming' },
+  { name: 'timeout-pattern', displayName: 'Timeout Pattern' },
+  { name: 'syscall-reuse', displayName: 'Syscall Reuse' },
 ];
 
 export { snippets, tags };
