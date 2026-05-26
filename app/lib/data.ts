@@ -1,5 +1,6 @@
 import postgres from 'postgres';
 import { Snippet } from './definitions';
+import { cacheLife, cacheTag } from 'next/cache';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -48,6 +49,10 @@ export async function fetchSnippets(filters?: SnippetFilters): Promise<Snippet[]
 }
 
 export async function fetchLanguages(): Promise<string[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('language');
+
   const result = await sql`
     SELECT language FROM snippets GROUP BY language ORDER BY COUNT(*) DESC
   `;
@@ -55,6 +60,10 @@ export async function fetchLanguages(): Promise<string[]> {
 }
 
 export async function fetchTags(): Promise<string[]> {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('tags');
+
   const result = await sql`
     SELECT tag FROM snippets, unnest(tags) AS t(tag) GROUP BY tag ORDER BY COUNT(*) DESC
   `;
