@@ -1,11 +1,16 @@
 'use client';
 
 import { Noto_Sans } from "next/font/google";
-import NavLinks from "./nav-links"
 import Image from "next/image";
 import { SessionProvider } from "next-auth/react";
+import dynamic from 'next/dynamic';
 
 const notoSans = Noto_Sans({weight: "400", style: "normal", subsets: ["latin"]});
+
+const ClientNavLinks = dynamic(
+        () => import('./nav-links'),
+        {ssr: false},
+    );
 
 export default function Navigation() {
     return (
@@ -16,7 +21,7 @@ export default function Navigation() {
                 flex flex-row sm:flex-col justify-start items-center gap-4
             `}>
                 <Image src='/Cameroceras.svg' width={30} height={30} alt="Logo of Cameroceras" className="rounded-md sm:w-full"/>
-                <NavLinks />
+                <ClientNavLinks />
             </nav>
         </SessionProvider>
     );
