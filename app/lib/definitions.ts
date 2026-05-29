@@ -13,4 +13,9 @@ export type Tag = {
   displayName: string;  // 原始大小写，用于显示
 };
 
-
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+};

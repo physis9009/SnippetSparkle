@@ -1,6 +1,6 @@
 import {creatSnippet} from '@/app/lib/actions';
-import { supportedLanguages } from '../lib/utils';
-import {getCachedTags} from '../lib/server-utils';
+import { supportedLanguages } from '@/app/lib/utils';
+import {getCachedTags} from '@/app/lib/server-utils';
 
 export default async function Page() {
     const tags = await getCachedTags();

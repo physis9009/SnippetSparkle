@@ -3,6 +3,8 @@
 import { z } from 'zod';
 import postgres from 'postgres';
 import { toTagKey } from './utils';
+import {signIn, signOut} from '@/auth';
+import { AuthError } from 'next-auth';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -78,4 +80,30 @@ export async function creatSnippet(formData: FormData) {
       NOW()
     )
   `;
+}
+
+export async function authenticate(prevState: string | undefined, formData: FormData) {
+  const callbackUrl = formData.get("callbackUrl") as string || "/";
+  try {
+    await signIn('credentials', {
+      email: formData.get('email'),
+      password: formData.get('password'),
+      name: formData.get('name'),
+      redirectTo: callbackUrl,
+      redirect: true,
+    });
+  } catch (error) {
+    if (error instanceof AuthError && error.type === 'CredentialsSignin') {
+      return 'Invalid Credentials.';
+    }
+    throw error;
+  }
+}
+
+export async function signInAction() {
+  await signIn(undefined);
+}
+
+export async function signOutAction() {
+  await signOut();
 }

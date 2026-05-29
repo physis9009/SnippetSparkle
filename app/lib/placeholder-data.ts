@@ -426,4 +426,6 @@ const tags = [
   { name: 'syscall-reuse', displayName: 'Syscall Reuse' },
 ];
 
-export { snippets, tags };
+const users = [{id: '410544b2-4001-4271-9855-fec4b6a6442a', name: 'Wynn', email: 'wwb9009@163.com', password: '12345678'}]
+
+export { snippets, tags, users };
