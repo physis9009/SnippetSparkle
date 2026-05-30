@@ -82,6 +82,30 @@ export async function creatSnippet(formData: FormData) {
   `;
 }
 
+export async function starSnippet(userId: string, snippetId: string) {
+  try {
+    await sql`
+      INSERT INTO user_starred_snippets (user_id, snippet_id) VALUES (${userId}, ${snippetId})
+    `;
+    console.log("Star snippet successfully.")
+  } catch (error) {
+    console.error("Failed to star this snippet: ", error);
+    throw new Error("Failed to star this snippet.");
+  }
+}
+
+export async function unStarSnippet(userId: string, snippetId: string) {
+  try {
+    await sql`
+      DELETE FROM user_starred_snippets WHERE user_id = ${userId} AND snippet_id = ${snippetId}
+    `;
+    console.log("Unstar snippet successfully.")
+  } catch (error) {
+    console.error("Failed to unstar this snippet: ", error);
+    throw new Error("Failed to unstar this snippet.");
+  }
+}
+
 export async function authenticate(prevState: string | undefined, formData: FormData) {
   const callbackUrl = formData.get("callbackUrl") as string || "/";
   try {

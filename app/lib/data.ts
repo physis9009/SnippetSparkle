@@ -69,3 +69,30 @@ export async function fetchTags(): Promise<string[]> {
   `;
   return result.map(r => r.tag);
 }
+
+export async function fetchStarCountsAll(snippetsId: string[]) {
+  'use cache';
+
+  cacheLife('hours');
+  cacheTag('starCounts');
+
+  try {
+    const result = await sql`
+      SELECT snippet_id, COUNT(*) as count
+      FROM user_starred_snippets
+      WHERE snippet_id = ANY(${snippetsId})
+      GROUP BY snippet_id
+    `;
+
+    const countMap: Record<string, number> = {};
+
+    result.forEach(row => {
+      countMap[row.snippet_id] = Number(row.count);
+    })
+
+    return countMap;
+  } catch (error) {
+    console.error("Failed to fetch star counts: ", error);
+    throw new Error("Failed to fetch star counts.")
+  }
+}
