@@ -96,3 +96,54 @@ export async function fetchStarCountsAll(snippetsId: string[]) {
     throw new Error("Failed to fetch star counts.")
   }
 }
+
+export async function fetchStarred(userId: string, filters?: SnippetFilters): Promise<Snippet[]> {
+  try {
+    const conditions = [];
+
+    if (filters?.languages?.length) {
+      conditions.push(sql`language = ANY(${filters.languages})`);
+    }
+    if (filters?.tags?.length) {
+      conditions.push(sql`tags && ${filters.tags}`);
+    }
+    if (filters?.startDate) {
+      conditions.push(sql`created_at >= ${filters.startDate}::timestamp`);
+    }
+    if (filters?.endDate) {
+      conditions.push(sql`created_at < ${filters.endDate}::timestamptz + interval '1 day'`);
+    }
+
+    if (conditions.length > 0) {
+      const whereClause = conditions.reduce((prev, curr, idx) => {
+        if (idx === 0) return curr;
+        return sql`${prev} AND ${curr}`;
+      });
+
+      const result = await sql<Snippet[]>`
+        SELECT s.id, s.title, s.language, s.summary, s.code, s.tags, s.created_at, us.starred_at
+        FROM snippets s
+        INNER JOIN user_starred_snippets us ON s.id = us.snippet_id
+        WHERE us.user_id = ${userId} AND ${whereClause}
+        ORDER BY us.starred_at DESC
+      `;
+
+      return result;
+    } else {
+      const result = await sql<Snippet[]>`
+        SELECT s.id, s.title, s.language, s.summary, s.code, s.tags, s.created_at, us.starred_at
+        FROM snippets s
+        INNER JOIN user_starred_snippets us ON s.id = us.snippet_id
+        WHERE us.user_id = ${userId}
+        ORDER BY us.starred_at DESC
+      `;
+
+      return result;
+    }
+  } catch (error) {
+    console.error("Failed to fetch snippets: ", error);
+    throw new Error("Failed to fetch snippets.");
+  }
+}
+
+export async function fetchMine() {}

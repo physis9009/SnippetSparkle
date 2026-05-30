@@ -1,6 +1,7 @@
 import CardFlow from '@/app/ui/cardflow';
-import { fetchSnippets } from '@/app/lib/data';
+import { fetchStarred } from '@/app/lib/data';
 import Pagination from '@/app/ui/pagination';
+import {auth} from '@/auth';
 
 type SearchParams = Promise<{
   lang?: string | string[];
@@ -13,6 +14,7 @@ type SearchParams = Promise<{
 const ITEMS_PER_PAGE = 10;
 
 export default async function StarredPage({ searchParams }: { searchParams: SearchParams }) {
+  
   const params = await searchParams; 
 
   const languages = params?.lang
@@ -22,7 +24,10 @@ export default async function StarredPage({ searchParams }: { searchParams: Sear
     ? (Array.isArray(params.tag) ? params.tag : [params.tag])
     : undefined;
 
-  const snippets = await fetchSnippets({
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (userId) {const snippets = await fetchStarred(userId, {
     languages,
     tags,
     startDate: params?.start,
@@ -44,6 +49,13 @@ export default async function StarredPage({ searchParams }: { searchParams: Sear
       <CardFlow snippets={pagedSnippets} />
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
+      </div>
+    </>
+  );} else return (
+    <>
+      <CardFlow snippets={[]} />
+      <div className="flex justify-center my-4">
+        <Pagination totalPages={1}/>
       </div>
     </>
   );

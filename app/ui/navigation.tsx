@@ -20,7 +20,7 @@ export default function Navigation() {
                 w-full max-h-10 bg-blk-md sm:h-full sm:max-w-25 sm:max-h-none
                 flex flex-row sm:flex-col justify-start items-center gap-4
             `}>
-                <Image src='/Cameroceras.svg' width={30} height={30} alt="Logo of Cameroceras" className="rounded-md sm:w-full"/>
+                <Image src='/Cameroceras.svg' width={30} height={30} alt="Logo of Cameroceras" className="rounded-md sm:w-full" loading="eager"/>
                 <ClientNavLinks />
             </nav>
         </SessionProvider>
