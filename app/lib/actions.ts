@@ -3,8 +3,9 @@
 import { z } from 'zod';
 import postgres from 'postgres';
 import { toTagKey } from './utils';
-import {signIn, signOut} from '@/auth';
+import {auth, signIn, signOut} from '@/auth';
 import { AuthError } from 'next-auth';
+import {revalidateTag} from 'next/cache';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -80,6 +81,31 @@ export async function creatSnippet(formData: FormData) {
       NOW()
     )
   `;
+}
+
+export async function toggleStar(snippetId: string) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    throw new Error("Need to log in to star a snippet.");
+  }
+
+  const userId = session.user.id;
+  const existing = await sql`
+    SELECT 1 FROM user_starred_snippets WHERE user_id = ${userId} AND snippet_id = ${snippetId}
+  `;
+  if (existing.length === 0) {
+    await sql`
+      INSERT INTO user_starred_snippets (user_id, snippet_id)
+      VALUES (${userId}, ${snippetId})
+    `;
+  } else {
+    await sql`
+      DELETE FROM user_starred_snippets WHERE user_id = ${userId} AND snippet_id = ${snippetId}
+    `;
+  }
+
+  revalidateTag(`star-count-${snippetId}`, 'max')
 }
 
 export async function starSnippet(userId: string, snippetId: string) {

@@ -1,6 +1,7 @@
 import CardFlow from '@/app/ui/cardflow';
 import { fetchSnippets } from '@/app/lib/data';
 import Pagination from '../ui/pagination';
+import {auth} from '@/auth';
 
 type SearchParams = Promise<{
   lang?: string | string[];
@@ -14,6 +15,8 @@ const ITEMS_PER_PAGE = 10;
 
 export default async function CardFlowPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams; 
+  const session = await auth();
+  const userName = session?.user?.name;
 
   const languages = params?.lang
     ? (Array.isArray(params.lang) ? params.lang : [params.lang])
@@ -41,7 +44,7 @@ export default async function CardFlowPage({ searchParams }: { searchParams: Sea
 
   return (
     <>
-      <CardFlow snippets={pagedSnippets} />
+      <CardFlow snippets={pagedSnippets} userName={userName}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
       </div>

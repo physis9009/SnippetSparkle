@@ -26,6 +26,7 @@ export default async function StarredPage({ searchParams }: { searchParams: Sear
 
   const session = await auth();
   const userId = session?.user?.id;
+  const userName = session?.user?.name;
 
   if (userId) {const snippets = await fetchStarred(userId, {
     languages,
@@ -46,14 +47,14 @@ export default async function StarredPage({ searchParams }: { searchParams: Sear
 
   return (
     <>
-      <CardFlow snippets={pagedSnippets} />
+      <CardFlow snippets={pagedSnippets} userName={userName}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
       </div>
     </>
   );} else return (
     <>
-      <CardFlow snippets={[]} />
+      <CardFlow snippets={[]} userName={userName}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={1}/>
       </div>

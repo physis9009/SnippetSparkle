@@ -70,27 +70,25 @@ export async function fetchTags(): Promise<string[]> {
   return result.map(r => r.tag);
 }
 
-export async function fetchStarCountsAll(snippetsId: string[]) {
+async function fetchStarCount(snippetId: string) {
   'use cache';
-
   cacheLife('hours');
-  cacheTag('starCounts');
+  cacheTag(`star-count-${snippetId}`);
 
+  const result = await sql`
+    SELECT COUNT(*) as count
+    FROM user_starred_snippets
+    WHERE snippet_id = ${snippetId}
+  `;
+  return Number(result[0].count);
+}
+
+export async function fetchStarCountsAll(snippetsId: string[]) {
   try {
-    const result = await sql`
-      SELECT snippet_id, COUNT(*) as count
-      FROM user_starred_snippets
-      WHERE snippet_id = ANY(${snippetsId})
-      GROUP BY snippet_id
-    `;
-
-    const countMap: Record<string, number> = {};
-
-    result.forEach(row => {
-      countMap[row.snippet_id] = Number(row.count);
-    })
-
-    return countMap;
+    const counts = await Promise.all(
+      snippetsId.map(id => fetchStarCount(id))
+    );
+    return Object.fromEntries(snippetsId.map((id, i) => [id, counts[i]]));
   } catch (error) {
     console.error("Failed to fetch star counts: ", error);
     throw new Error("Failed to fetch star counts.")
@@ -146,4 +144,49 @@ export async function fetchStarred(userId: string, filters?: SnippetFilters): Pr
   }
 }
 
-export async function fetchMine() {}
+export async function fetchMine(userId: string, filters?: SnippetFilters) {
+  try {
+    const conditions = [];
+
+    if (filters?.languages?.length) {
+      conditions.push(sql`language = ANY(${filters.languages})`);
+    }
+    if (filters?.tags?.length) {
+      conditions.push(sql`tags && ${filters.tags}`);
+    }
+    if (filters?.startDate) {
+      conditions.push(sql`created_at >= ${filters.startDate}::timestamp`);
+    }
+    if (filters?.endDate) {
+      conditions.push(sql`created_at < ${filters.endDate}::timestamptz + interval '1 day'`);
+    }
+
+    if (conditions.length > 0) {
+      const whereClause = conditions.reduce((prev, curr, idx) => {
+        if (idx === 0) return curr;
+        return sql`${prev} AND ${curr}`;
+      });
+
+      const result = await sql<Snippet[]>`
+        SELECT id, title, language, summary, code, tags, created_at
+        FROM snippets
+        WHERE created_by = ${userId} AND ${whereClause}
+        ORDER BY created_at DESC
+      `;
+
+      return result;
+    } else {
+      const result = await sql<Snippet[]>`
+        SELECT id, title, language, summary, code, tags, created_at
+        FROM snippets
+        WHERE created_by = ${userId}
+        ORDER BY created_at DESC
+      `;
+
+      return result;
+    }
+  } catch (error) {
+    console.error("Failed to fetch snippets: ", error);
+    throw new Error("Failed to fetch snippets.");
+  }
+}

@@ -1,6 +1,7 @@
 import CardFlow from '@/app/ui/cardflow';
-import { fetchSnippets } from '@/app/lib/data';
+import { fetchMine } from '@/app/lib/data';
 import Pagination from '@/app/ui/pagination';
+import {auth} from '@/auth';
 
 type SearchParams = Promise<{
   lang?: string | string[];
@@ -12,7 +13,8 @@ type SearchParams = Promise<{
 
 const ITEMS_PER_PAGE = 10;
 
-export default async function MinePage({ searchParams }: { searchParams: SearchParams }) {
+export default async function StarredPage({ searchParams }: { searchParams: SearchParams }) {
+  
   const params = await searchParams; 
 
   const languages = params?.lang
@@ -22,7 +24,11 @@ export default async function MinePage({ searchParams }: { searchParams: SearchP
     ? (Array.isArray(params.tag) ? params.tag : [params.tag])
     : undefined;
 
-  const snippets = await fetchSnippets({
+  const session = await auth();
+  const userId = session?.user?.id;
+  const userName = session?.user?.name;
+
+  if (userId) {const snippets = await fetchMine(userId, {
     languages,
     tags,
     startDate: params?.start,
@@ -41,9 +47,16 @@ export default async function MinePage({ searchParams }: { searchParams: SearchP
 
   return (
     <>
-      <CardFlow snippets={pagedSnippets} />
+      <CardFlow snippets={pagedSnippets} userName={userName}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
+      </div>
+    </>
+  );} else return (
+    <>
+      <CardFlow snippets={[]} userName={userName}/>
+      <div className="flex justify-center my-4">
+        <Pagination totalPages={1}/>
       </div>
     </>
   );

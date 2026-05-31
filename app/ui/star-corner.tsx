@@ -1,12 +1,11 @@
-import { SparklesIcon as SparklesBig } from "@heroicons/react/24/solid";
 import { SparklesIcon as SparklesSmall } from "@heroicons/react/16/solid";
 
 export function StarCorner({starCount}: {starCount: number}) {
     
-    if (!starCount || starCount < 10) return <div className="absolute right-2 bottom-2 text-wht-gr"><SparklesBig className="w-5 h-5" /></div>;
+    if (!starCount || starCount < 10) return null;
     else {
-        return <div className="absolute right-2 bottom-2 text-wht-gr z-50">
-            <span className="bg-blk-md rounded-sm">{starCount}</span>
+        return <div className="px-2 border-l border-blk-gr">
+            {starCount}
             <SparklesSmall className="w-4 h-4" />
         </div>
     }
