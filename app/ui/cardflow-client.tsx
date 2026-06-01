@@ -12,10 +12,12 @@ export interface HighlightedSnip extends Snippet {
     result: AutoHighlightResult;
 }
 
-export function CardFlowClient({ snippets, userName, starCountsMap }: { 
+export function CardFlowClient({ snippets, userName, userId, starCountsMap, tagMap }: { 
     snippets: Snippet[];
     userName: string | null | undefined;
+    userId: string | undefined;
     starCountsMap: {[k: string]: number};
+    tagMap: Record<string, string>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedSnippet, setSelected] = useState<HighlightedSnip | null>(null);
@@ -51,7 +53,7 @@ export function CardFlowClient({ snippets, userName, starCountsMap }: {
             })}
         </div>
         {userName 
-        ? <DetailedSnippet snippet={selectedSnippet} userName={userName} isOpen={isOpen} doClose={() => setIsOpen(false)}/>
+        ? <DetailedSnippet snippet={selectedSnippet} userName={userName} userId={userId} isOpen={isOpen} doClose={() => setIsOpen(false)} tagMap={tagMap}/>
         : <div className='fixed text-center text-blk-gr'>Sign in to see details of snippets</div>
         }
     </>

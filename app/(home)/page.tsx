@@ -17,6 +17,7 @@ export default async function CardFlowPage({ searchParams }: { searchParams: Sea
   const params = await searchParams; 
   const session = await auth();
   const userName = session?.user?.name;
+  const userId = session?.user?.id;
 
   const languages = params?.lang
     ? (Array.isArray(params.lang) ? params.lang : [params.lang])
@@ -44,7 +45,7 @@ export default async function CardFlowPage({ searchParams }: { searchParams: Sea
 
   return (
     <>
-      <CardFlow snippets={pagedSnippets} userName={userName}/>
+      <CardFlow snippets={pagedSnippets} userName={userName} userId={userId}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
       </div>

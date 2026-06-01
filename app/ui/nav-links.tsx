@@ -37,7 +37,7 @@ export default function Page() {
             {links.map((link) => (
                 <Link key={link.name} href={link.href}
                 className={clsx(
-                    "w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center", 
+                    "w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center border-b-1 border-b-[#5a5a5a]", 
                     [pathname === link.href && 'bg-blk text-[#5a5a5a] cursor-default italic pointer-events-none'], 
                     [pathname !== link.href && 'hover:text-wht hover:bg-blk-gr']
                 )}>

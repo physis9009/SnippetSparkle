@@ -157,3 +157,15 @@ export async function signInAction() {
 export async function signOutAction() {
   await signOut();
 }
+
+export async function checkIfStarred(snippetId: string, userId: string): Promise<boolean> {
+  const result = await sql`
+    SELECT EXISTS (
+      SELECT 1
+      FROM user_starred_snippets
+      WHERE user_id = ${userId} AND snippet_id = ${snippetId}
+    ) AS is_starred
+  `;
+
+  return result[0]?.is_starred ? true : false;
+}

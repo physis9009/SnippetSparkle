@@ -47,14 +47,14 @@ export default async function StarredPage({ searchParams }: { searchParams: Sear
 
   return (
     <>
-      <CardFlow snippets={pagedSnippets} userName={userName}/>
+      <CardFlow snippets={pagedSnippets} userName={userName} userId={userId}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
       </div>
     </>
   );} else return (
     <>
-      <CardFlow snippets={[]} userName={userName}/>
+      <CardFlow snippets={[]} userName={userName} userId={userId}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={1}/>
       </div>

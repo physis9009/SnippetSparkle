@@ -70,6 +70,19 @@ export async function fetchTags(): Promise<string[]> {
   return result.map(r => r.tag);
 }
 
+export async function fetchTagMap(): Promise<Record<string, string>> {
+  'use cache';
+  cacheLife('days');
+  cacheTag('tagMap');
+
+  const result = await sql`
+    SELECT name, display_name FROM tags
+  `;
+  const tagMap = Object.fromEntries(result.map(row => [row.name, row.display_name]));
+
+  return tagMap;
+}
+
 async function fetchStarCount(snippetId: string) {
   'use cache';
   cacheLife('hours');
