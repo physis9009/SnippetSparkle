@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { DetailedSnippet } from './detailed-snippet';
 import { AutoHighlightResult } from 'highlight.js';
 
-interface HighlightedSnip extends Snippet {
+export interface HighlightedSnip extends Snippet {
     result: AutoHighlightResult;
 }
 

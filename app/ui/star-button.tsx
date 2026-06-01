@@ -26,8 +26,8 @@ export function StarButton({snippetId, initialStarred}: {
     };
 
     return (
-        <button disabled={isPending} onClick={handler} className="text-wht-gr">
-            {isStarred ? <StarSolid className="w-6 h-6" /> : <StarOutline className="w-6 h-6" />}
+        <button disabled={isPending} onClick={handler} className="text-wht-gr hover:text-wht hover:cursor-pointer bg-grn-gr hover:bg-grn rounded-sm py-1 px-3">
+            {isStarred ? <StarSolid className="w-4 h-4" /> : <StarOutline className="w-4 h-4" />}
         </button>
     );
 }
