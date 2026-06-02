@@ -6,22 +6,27 @@ import { toTagKey } from './utils';
 import {auth, signIn, signOut} from '@/auth';
 import { AuthError } from 'next-auth';
 import {revalidateTag} from 'next/cache';
+import bcrypt from 'bcrypt';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
   id: z.uuid(),
-  title: z.string().optional(),
+  title: z.string().trim().min(1, 'Cannot be only spaces').optional(),
   language: z.string().min(1, "Language is required"),
-  summary: z.string().optional(),
+  summary: z.string().trim().min(1, 'Cannot be only spaces').optional(),
   code: z.string().min(1, "Code is required"),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.string()).max(8, 'Maximum 8 tags').optional(),
   created_at: z.iso.datetime(),
+  created_by: z.uuid(),
 });
 
-const SnippetCreateSchema = FormSchema.omit({ id: true, created_at: true });
+const SnippetCreateSchema = FormSchema.omit({ id: true, created_at: true, created_by: true, });
 
 export async function creatSnippet(formData: FormData) {
+  const session = await auth();
+  const userId = session!.user!.id!;
+
   const newTagDisplay = formData.get('new_tag') as string | null;
   
   const validated = SnippetCreateSchema.safeParse({
@@ -71,14 +76,15 @@ export async function creatSnippet(formData: FormData) {
   }
 
   await sql`
-    INSERT INTO snippets (title, language, summary, code, tags, created_at)
+    INSERT INTO snippets (title, language, summary, code, tags, created_at, created_by)
     VALUES (
       ${title ?? null},
       ${language},
       ${summary ?? null},
       ${code},
       ${tags.length > 0 ? tags : null}::text[],
-      NOW()
+      NOW(),
+      ${userId}
     )
   `;
 }
@@ -168,4 +174,31 @@ export async function checkIfStarred(snippetId: string, userId: string): Promise
   `;
 
   return result[0]?.is_starred ? true : false;
+}
+
+const UserSchema = z.object({
+  id: z.uuid(),
+  name: z.string().min(1, 'Username is required').max(30, 'Username must be at most 30 characters'),
+  email: z.email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(50, 'Password must be at most 50 characters'),
+});
+
+const UserCrreateSchema = UserSchema.omit({id: true,});
+
+export async function createUser(prevState: string | null, formData: FormData) {
+  const validatedNewUser = UserCrreateSchema.safeParse({
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
+
+  if (validatedNewUser.success) {
+    const {name, email, password} = validatedNewUser.data;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await sql`
+      INSERT INTO users (name, email, password)
+      VALUES (${name}, ${email}, ${hashedPassword})
+      ON CONFLICT (id) DO NOTHING;
+    `;
+  }
 }

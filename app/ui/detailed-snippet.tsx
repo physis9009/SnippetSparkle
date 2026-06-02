@@ -16,12 +16,15 @@ export function DetailedSnippet({snippet, userName, userId, isOpen, doClose, tag
     
     return (
         <div className='fixed z-50 bg-blk-gr/50 inset-0 flex items-center justify-center'>
-            <div className='bg-blk-md w-[90%] h-[90%] flex flex-col justify-start content-center items-center border border-blk-gr rounded-lg'>
+            <div className='
+                bg-blk-md w-[90%] h-[90%] flex flex-col justify-start content-center 
+                items-center border-3 border-blk-gr rounded-lg shadow-[#5a5a5a] shadow-sm
+            '>
                 <div className='w-full flex flex-row justify-around content-center items-center relative pb-1 rounded-s-lg'>
                     <StarButton snippetId={snippet.id} initialStarred={isStarred} />
                     {snippet.title && <span >{snippet.title}</span>}
                     <span>Language: {snippet.language}</span>
-                    <button onClick={doClose} className="text-sm absolute right-0 text-pnk-gr font-bold hover:text-pnk bg-wht-gr hover:bg-wht px-1">✕</button>
+                    <button onClick={doClose} className="text-sm absolute right-0 bg-pnk-gr font-bold hover:bg-pnk text-blk-gr hover:text-blk px-1">✕</button>
                 </div>
 
                 <pre className='bg-blk w-[98%] max-h-[80%] min-h-[50%] overflow-y-auto border-b-blk-gr px-4 py-2 custom-scrollbar rounded-sm'>
