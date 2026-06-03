@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Space_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "./ui/navigation";
+import { SessionProvider } from "next-auth/react";
 
 const spaceMono = Space_Mono({
   weight: "400",
@@ -34,8 +35,10 @@ export default function RootLayout({
         flex flex-col sm:flex-row
         custom-scrollbar`}
       >
-        <Navigation />
-        {children}
+        <SessionProvider>
+          <Navigation />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

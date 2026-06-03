@@ -3,7 +3,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
-import { signInAction,  signOutAction } from "../lib/actions";
+import { signOutAction } from "../lib/actions";
 
 export default function Page() {
     const pathname = usePathname();
@@ -19,15 +19,17 @@ export default function Page() {
 
     let authButton = null;
     if (status === 'loading') {
-        authButton = <span>Loading...</span>;
+        authButton = <div className="sm:w-[80%] rounded-sm bg-[#5a5a5a] animate-pulse">
+            <span className="invisible">Sign Out</span>
+        </div>;
     } else if (session) {
         authButton = <form action={signOutAction} className="w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center hover:text-wht hover:bg-blk-gr hover:cursor-pointer
         text-sm italic"><button type="submit" className="w-full  hover:cursor-pointer">Sign Out</button></form>;
     } else {
         authButton = (
             <div className="flex flex-row gap-1">
-                <form action={signInAction} className="w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center hover:text-wht hover:bg-blk-gr hover:cursor-pointer
-                text-sm italic"><button type="submit" className="w-full hover:cursor-pointer">SignUp/SignIn</button></form>
+                <Link href='/login' className="w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center hover:text-wht hover:bg-blk-gr hover:cursor-pointer
+                text-sm italic">SignUp/SignIn</Link>
             </div>
         );
     }
@@ -44,6 +46,7 @@ export default function Page() {
                     {link.name}
                 </Link>
             ))}
+            {}
             {authButton}
         </>
         

@@ -5,8 +5,9 @@ import postgres from 'postgres';
 import { toTagKey } from './utils';
 import {auth, signIn, signOut} from '@/auth';
 import { AuthError } from 'next-auth';
-import {revalidateTag} from 'next/cache';
+import {revalidateTag, revalidatePath} from 'next/cache';
 import bcrypt from 'bcrypt';
+import { redirect } from 'next/navigation';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
@@ -138,25 +139,26 @@ export async function unStarSnippet(userId: string, snippetId: string) {
   }
 }
 
-export async function authenticate(prevState: string | undefined, formData: FormData) {
-  const callbackUrl = formData.get("callbackUrl") as string || "/";
-  try {
-    await signIn('credentials', {
-      email: formData.get('email'),
-      password: formData.get('password'),
-      redirectTo: callbackUrl,
-      redirect: true,
-    });
-  } catch (error) {
-    if (error instanceof AuthError && error.type === 'CredentialsSignin') {
-      return 'Invalid Credentials.';
-    }
-    throw error;
-  }
+export interface AuthState {
+  success: boolean;
+  callbackUrl?: string;
+  message?: string;
 }
 
-export async function signInAction() {
-  await signIn(undefined);
+export async function authenticate(prevState: AuthState | undefined, formData: FormData) {
+  const callbackUrl = formData.get("callbackUrl") as string || "/";
+  
+  const result = await signIn('credentials', {
+    email: formData.get('email'),
+    password: formData.get('password'),
+    redirect: false,
+  });
+
+  if (result?.error) {
+    return { success: false, message: 'Invalid Credentials.' };
+  }
+
+  return { success: true, callbackUrl };
 }
 
 export async function signOutAction() {
@@ -184,25 +186,40 @@ const UserSchema = z.object({
 
 const UserCrreateSchema = UserSchema.omit({id: true,});
 
-export async function createUser(prevState: string | undefined, formData: FormData) {
+export interface State {
+  errors?: {
+    name?: string[];
+    email?: string[];
+    password?: string[];
+  };
+  message?: string | null;
+}
+
+export async function createUser(prevState: State, formData: FormData) {
   const validatedNewUser = UserCrreateSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
   });
 
-  if (validatedNewUser.success) {
-    const {name, email, password} = validatedNewUser.data;
-    const hashedPassword = await bcrypt.hash(password, 10);
+  if (!validatedNewUser.success) {
+    return {
+      errors: validatedNewUser.error.flatten().fieldErrors,
+      message: 'Missing fields. Failed to create user.'
+    };
+  }
 
-    try {
-      await sql`
-        INSERT INTO users (name, email, password)
-        VALUES (${name}, ${email}, ${hashedPassword})
-        ON CONFLICT (id) DO NOTHING;
-      `;
-    } catch (error) {
-      return 'Error creating new user.';
-    }
-  } 
+  const {name, email, password} = validatedNewUser.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  try {
+    await sql`
+      INSERT INTO users (name, email, password)
+      VALUES (${name}, ${email}, ${hashedPassword})
+      ON CONFLICT (id) DO NOTHING;
+    `;
+  } catch (error) {
+    return {message: 'Database Error: Failed to create user.'};
+  }
+  redirect('/');
 }
