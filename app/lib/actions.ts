@@ -144,7 +144,6 @@ export async function authenticate(prevState: string | undefined, formData: Form
     await signIn('credentials', {
       email: formData.get('email'),
       password: formData.get('password'),
-      name: formData.get('name'),
       redirectTo: callbackUrl,
       redirect: true,
     });
@@ -185,7 +184,7 @@ const UserSchema = z.object({
 
 const UserCrreateSchema = UserSchema.omit({id: true,});
 
-export async function createUser(prevState: string | null, formData: FormData) {
+export async function createUser(prevState: string | undefined, formData: FormData) {
   const validatedNewUser = UserCrreateSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
@@ -195,10 +194,15 @@ export async function createUser(prevState: string | null, formData: FormData) {
   if (validatedNewUser.success) {
     const {name, email, password} = validatedNewUser.data;
     const hashedPassword = await bcrypt.hash(password, 10);
-    await sql`
-      INSERT INTO users (name, email, password)
-      VALUES (${name}, ${email}, ${hashedPassword})
-      ON CONFLICT (id) DO NOTHING;
-    `;
-  }
+
+    try {
+      await sql`
+        INSERT INTO users (name, email, password)
+        VALUES (${name}, ${email}, ${hashedPassword})
+        ON CONFLICT (id) DO NOTHING;
+      `;
+    } catch (error) {
+      return 'Error creating new user.';
+    }
+  } 
 }

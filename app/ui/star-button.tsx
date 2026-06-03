@@ -5,14 +5,19 @@ import { toggleStar } from "../lib/actions";
 import { StarIcon as StarSolid } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutline } from "@heroicons/react/24/outline";
 
-export function StarButton({snippetId, initialStarred}: {
+export function StarButton({snippetId, initialStarred, userId}: {
     snippetId: string;
     initialStarred: boolean;
+    userId: string | undefined;
 }) {
     const [isStarred, setIsStarred] = useState(initialStarred);
     const [isPending, startTransition] = useTransition();
 
     const handler = () => {
+        if (!userId) {
+            alert("Need to sign in to star a snippet");
+            return;
+        }
         startTransition(async () => {
             setIsStarred(!isStarred);
 

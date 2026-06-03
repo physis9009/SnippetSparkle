@@ -52,10 +52,7 @@ export function CardFlowClient({ snippets, userName, userId, starCountsMap, tagM
                 );
             })}
         </div>
-        {userName 
-        ? <DetailedSnippet snippet={selectedSnippet} userName={userName} userId={userId} isOpen={isOpen} doClose={() => setIsOpen(false)} tagMap={tagMap}/>
-        : <div className='fixed text-center text-blk-gr'>Sign in to see details of snippets</div>
-        }
+        <DetailedSnippet snippet={selectedSnippet} userName={userName} userId={userId} isOpen={isOpen} doClose={() => setIsOpen(false)} tagMap={tagMap}/>   
     </>
     
   );

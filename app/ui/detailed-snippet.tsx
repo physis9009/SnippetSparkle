@@ -3,7 +3,7 @@ import { StarButton } from './star-button';
 import { checkIfStarred } from '../lib/actions';
 import {useState, useEffect} from 'react';
 
-export function DetailedSnippet({snippet, userName, userId, isOpen, doClose, tagMap}: {snippet: HighlightedSnip | null; userName: string; userId: string | undefined; isOpen: boolean; doClose: () => void; tagMap: Record<string, string>;}) {
+export function DetailedSnippet({snippet, userName, userId, isOpen, doClose, tagMap}: {snippet: HighlightedSnip | null; userName: string | undefined | null; userId: string | undefined; isOpen: boolean; doClose: () => void; tagMap: Record<string, string>;}) {
     const [isStarred, setIsStarred] = useState(false);
 
     useEffect(() => {
@@ -21,7 +21,7 @@ export function DetailedSnippet({snippet, userName, userId, isOpen, doClose, tag
                 items-center border-3 border-blk-gr rounded-lg shadow-[#5a5a5a] shadow-sm
             '>
                 <div className='w-full flex flex-row justify-around content-center items-center relative pb-1 rounded-s-lg'>
-                    <StarButton snippetId={snippet.id} initialStarred={isStarred} />
+                    <StarButton snippetId={snippet.id} initialStarred={isStarred} userId={userId}/>
                     {snippet.title && <span >{snippet.title}</span>}
                     <span>Language: {snippet.language}</span>
                     <button onClick={doClose} className="text-sm absolute right-0 bg-pnk-gr font-bold hover:bg-pnk text-blk-gr hover:text-blk px-1">✕</button>
