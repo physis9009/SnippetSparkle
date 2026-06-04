@@ -4,10 +4,9 @@ import { z } from 'zod';
 import postgres from 'postgres';
 import { toTagKey } from './utils';
 import {auth, signIn, signOut} from '@/auth';
-import { AuthError } from 'next-auth';
-import {revalidateTag, revalidatePath} from 'next/cache';
+import {revalidateTag} from 'next/cache';
 import bcrypt from 'bcrypt';
-import { redirect } from 'next/navigation';
+import { type PostgresError } from 'postgres';
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
