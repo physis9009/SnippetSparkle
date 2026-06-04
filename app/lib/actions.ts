@@ -220,8 +220,11 @@ export async function createUser(prevState: SignUpState, formData: FormData) {
       VALUES (${name}, ${email}, ${hashedPassword})
     `;
   } catch (error) {
-    if (error.code === '23505') {
-      return { success: false, message: 'Email already exists. Please use a different email.' };
+    if (typeof error === 'object' && error !== null && 'code' in error) {
+      const pgError = error as PostgresError;
+      if (pgError.code === '23505') {
+        return { success: false, message: 'Email already exists. Please use a different email.' };
+      }
     }
     return { success: false, message: 'Database Error: Failed to create user.' };
   }
