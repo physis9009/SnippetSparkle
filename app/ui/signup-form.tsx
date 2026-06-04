@@ -1,13 +1,23 @@
 'use client';
 
-import { useActionState } from "react";
-import { createUser, type State } from "../lib/actions";
+import { useActionState, useEffect } from "react";
+import { createUser, type SignUpState } from "../lib/actions";
 import Link from "next/link";
 import { MorphingInfinity } from "@/components/morphing-infinity";
+import { useSession } from "next-auth/react";
 
 export function SignUpForm() {
-    const initialState: State = { message: null, errors: {} };
+    const initialState: SignUpState = { success: false, message: null, errors: {} };
     const [state, formAction, isPending] = useActionState(createUser, initialState);
+    const {update} = useSession();
+
+    useEffect(() => {
+        if (state.success) {
+            update().then(() => {
+                window.location.href = '/';
+            });
+        }
+    }, [state]);
 
     return (
         <form action={formAction} className="
@@ -64,13 +74,18 @@ export function SignUpForm() {
             
             {isPending
                 ? <MorphingInfinity className="size-10 mt-1" />
-                : <button type="submit" className="
-                        hover:cursor-pointer border border-wht rounded-sm text-wht-md hover:text-wht
-                      bg-grn-gr hover:bg-grn px-2 italic my-2 font-semibold text-lg hover:shadow shadow-blk-gr
-                  ">Sign up</button>
+                : <>
+                    <button type="submit" className="
+                            hover:cursor-pointer border border-wht rounded-sm text-wht-md hover:text-wht
+                        bg-grn-gr hover:bg-grn px-2 italic my-2 font-semibold text-lg hover:shadow shadow-blk-gr
+                    " aria-describedby='signup-error'>Sign up</button>
+                    <div id='signup-error' aria-live='polite' aria-atomic='true'>
+                        {state.message && <p className="text-pnk text-xs">{state.message}</p>}
+                    </div>
+                  </>
             }
             
-            <span className="my-2 text-sm border-t border-t-blk-gr pt-4">Already have an account? <Link href='/login' className="
+            <span className="my-2 mt-4 text-sm border-t border-t-blk-gr pt-4">Already have an account? <Link href='/login' className="
                 italic font-semibold text-grn-gr hover:text-grn bg-wht-md hover:bg-wht rounded-sm px-2
                 border border-grn-gr hover:border-grn text-lg hover:shadow shadow-blk-gr
             ">Sign in</Link></span>

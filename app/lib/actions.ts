@@ -184,9 +184,10 @@ const UserSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters").max(50, 'Password must be at most 50 characters'),
 });
 
-const UserCrreateSchema = UserSchema.omit({id: true,});
+const UserCreateSchema = UserSchema.omit({id: true,});
 
-export interface State {
+export interface SignUpState {
+  success: boolean;
   errors?: {
     name?: string[];
     email?: string[];
@@ -195,8 +196,8 @@ export interface State {
   message?: string | null;
 }
 
-export async function createUser(prevState: State, formData: FormData) {
-  const validatedNewUser = UserCrreateSchema.safeParse({
+export async function createUser(prevState: SignUpState, formData: FormData) {
+  const validatedNewUser = UserCreateSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
@@ -204,6 +205,7 @@ export async function createUser(prevState: State, formData: FormData) {
 
   if (!validatedNewUser.success) {
     return {
+      success: false,
       errors: validatedNewUser.error.flatten().fieldErrors,
       message: 'Missing fields. Failed to create user.'
     };
@@ -216,10 +218,19 @@ export async function createUser(prevState: State, formData: FormData) {
     await sql`
       INSERT INTO users (name, email, password)
       VALUES (${name}, ${email}, ${hashedPassword})
-      ON CONFLICT (id) DO NOTHING;
     `;
   } catch (error) {
-    return {message: 'Database Error: Failed to create user.'};
+    if (error.code === '23505') {
+      return { success: false, message: 'Email already exists. Please use a different email.' };
+    }
+    return { success: false, message: 'Database Error: Failed to create user.' };
   }
-  redirect('/');
+
+  const result = await signIn('credentials', { email, password, redirect: false });
+
+  if (result?.error) {
+    return { success: false, message: 'Account created, but auto-login failed. Please sign in manually.' };
+  }
+
+  return {success: true};
 }
