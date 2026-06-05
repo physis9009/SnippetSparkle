@@ -12,10 +12,10 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
   id: z.uuid(),
-  title: z.string().trim().min(1, 'Cannot be only spaces').optional(),
+  title: z.string().trim().min(1, 'Cannot be only spaces').max(100, 'Title cannot exceed 100 characters').optional(),
   language: z.string().min(1, "Language is required"),
-  summary: z.string().trim().min(1, 'Cannot be only spaces').optional(),
-  code: z.string().min(1, "Code is required"),
+  summary: z.string().trim().min(1, 'Cannot be only spaces').max(500, 'Summary cannot exceed 500 characters').optional(),
+  code: z.string().min(1, "Code is required").max(10000, 'Code cannot exceed 10000 characters'),
   tags: z.array(z.string()).max(8, 'Maximum 8 tags').optional(),
   created_at: z.iso.datetime(),
   created_by: z.uuid(),
@@ -23,7 +23,19 @@ const FormSchema = z.object({
 
 const SnippetCreateSchema = FormSchema.omit({ id: true, created_at: true, created_by: true, });
 
-export async function creatSnippet(formData: FormData) {
+export interface FormState {
+  success: boolean;
+  errors?: {
+    title?: string[];
+    language?: string[];
+    summary?: string[];
+    code?: string[];
+    tags?: string[];
+  } | null;
+  message?: string | null;
+}
+
+export async function creatSnippet(prevState: FormState, formData: FormData) {
   const session = await auth();
   const userId = session!.user!.id!;
 
@@ -38,7 +50,11 @@ export async function creatSnippet(formData: FormData) {
   });
 
   if (!validated.success) {
-    throw new Error('Validation failed');
+    return {
+      success: false,
+      errors: validated.error.flatten().fieldErrors,
+      message: 'Missing fields. Failed to create new snippet.',
+    };
   }
 
   const { language, title, code, summary, tags = [] } = validated.data;
@@ -48,18 +64,25 @@ export async function creatSnippet(formData: FormData) {
     const displayName = newTagDisplay.trim();
     
     if (!tags.includes(newTagName)) {
-        await sql`
+        try {await sql`
             INSERT INTO tags (name, display_name)
             VALUES (${newTagName}, ${displayName})
             ON CONFLICT (name) DO NOTHING
-        `;
+        `;} catch (error) {
+          return {
+            success: false,
+            message: 'Database error. Failed to insert new tag.'
+          };
+        }
         
         tags.push(newTagName);
+        revalidateTag('tags', 'max');
+        revalidateTag('tagMap', 'max');
     }
   }
 
   if (tags.length > 0) {
-    const existingTags = await sql<{ name: string }[]>`SELECT name FROM tags`;
+    try {const existingTags = await sql<{ name: string }[]>`SELECT name FROM tags`;
     const existingNames = new Set(existingTags.map(t => t.name));
     const missing = tags.filter(name => !existingNames.has(name));
     
@@ -72,10 +95,15 @@ export async function creatSnippet(formData: FormData) {
         VALUES (${name}, ${displayName})
         ON CONFLICT (name) DO NOTHING
       `;
+    }} catch (error) {
+      return {
+        success: false,
+        message: 'Database error. Failed to insert new tag.'
+      };
     }
   }
 
-  await sql`
+  try {await sql`
     INSERT INTO snippets (title, language, summary, code, tags, created_at, created_by)
     VALUES (
       ${title ?? null},
@@ -86,7 +114,14 @@ export async function creatSnippet(formData: FormData) {
       NOW(),
       ${userId}
     )
-  `;
+  `;} catch (error) {
+    return {
+      success: false,
+      message: 'Database error. Failed to create new snippet.'
+    }
+  }
+
+  return {success: true};
 }
 
 export async function toggleStar(snippetId: string) {

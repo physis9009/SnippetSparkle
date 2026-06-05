@@ -11,7 +11,9 @@ export async function getCachedTags() {
     
     cacheTag('tags'); 
 
-    return await sql<{ name: string; display_name: string }[]>`
+    const rows = await sql<{ name: string; display_name: string }[]>`
         SELECT name, display_name FROM tags ORDER BY display_name
     `;
+
+    return rows.map(row => ({ name: row.name, display_name: row.display_name }));
 }
