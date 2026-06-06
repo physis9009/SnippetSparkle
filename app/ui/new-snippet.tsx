@@ -20,10 +20,11 @@ export function NewSnippetForm({tags}: {tags: {
                 <label className='col-start-1 col-span-2'>
                     Language: 
                     <select 
-                        id="language" name="language" 
+                        id="language" name="language"
                         className='bg-blk ml-2 hover:cursor-pointer rounded-sm hover:shadow-blk-gr hover:shadow'
                         aria-describedby='langauge-error'
                     >
+                        <option disabled selected>--Select--</option>
                         {supportedLanguages.map((lan) => (
                             <option key={lan} value={lan}>{lan}</option>
                         ))}
@@ -66,14 +67,18 @@ export function NewSnippetForm({tags}: {tags: {
                     {formState.errors?.summary && formState.errors.summary.map((error) => <span key={error}>{error}</span>)}
                 </div>
 
-                <div className="col-start-1 col-span-4 grid grid-cols-4 gap-2" aria-describedby='tags-error'>
-                    Tags: 
-                    {tags.map((tag) => (
-                        <label key={tag.name} className="flex items-center gap-2 hover:cursor-pointer">
-                        <input type="checkbox" name="tags" value={tag.name} className='bg-blk hover:cursor-pointer text-wht-gr hover:text-wht'/>
-                            {tag.display_name}
-                        </label>
-                    ))}
+                <div className="col-start-1 col-span-4 grid grid-cols-1 gap-2 items-start" aria-describedby='tags-error'>
+                    <span>Tags: </span>
+                    <div className='flex flex-row flex-wrap gap-4 overflow-y-auto px-4 py-2 max-h-[30vh] custom-scrollbar bg-blk rounded-sm'>
+                        {tags.map((tag) => (
+                            <div key={tag.name} className='bg-blk-md hover:bg-blk-gr rounded-sm px-2'>
+                                <label className="flex items-center gap-2 hover:cursor-pointer">
+                                <input type="checkbox" name="tags" value={tag.name} className='bg-blk hover:cursor-pointer text-wht-gr hover:text-wht'/>
+                                    {tag.display_name}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
                 <div id='tags-error' className='col-span-4 col-start-1 text-xs text-pnk' aria-live='polite' aria-atomic='true'>
@@ -82,7 +87,7 @@ export function NewSnippetForm({tags}: {tags: {
 
                 <label className='col-start-1 col-span-2'>
                     Or add a new tag: 
-                    <input type="text" id="new_tag" name="new_tag" placeholder="optional" className='bg-blk ml-2 rounded-sm hover:shadow-blk-gr hover:shadow'/>
+                    <input type="text" id="new_tag" name="new_tag" placeholder="optional" className='ml-4 bg-blk rounded-sm hover:shadow-blk-gr hover:shadow'/>
                 </label>
             </fieldset>
 

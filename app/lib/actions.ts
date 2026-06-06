@@ -12,9 +12,15 @@ const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
   id: z.uuid(),
-  title: z.string().trim().min(1, 'Cannot be only spaces').max(100, 'Title cannot exceed 100 characters').optional(),
+  title: z.preprocess(
+    (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+    z.optional(z.string().trim().min(1, 'Cannot be only spaces').max(100, 'Title cannot exceed 100 characters'))
+  ),
   language: z.string().min(1, "Language is required"),
-  summary: z.string().trim().min(1, 'Cannot be only spaces').max(500, 'Summary cannot exceed 500 characters').optional(),
+  summary: z.preprocess(
+    (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+    z.optional(z.string().trim().min(1, 'Cannot be only spaces').max(500, 'Summary cannot exceed 500 characters'))
+  ),
   code: z.string().min(1, "Code is required").max(10000, 'Code cannot exceed 10000 characters'),
   tags: z.array(z.string()).max(8, 'Maximum 8 tags').optional(),
   created_at: z.iso.datetime(),

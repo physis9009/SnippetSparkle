@@ -29,7 +29,7 @@ export function CardFlowClient({ snippets, userName, userId, starCountsMap, tagM
 
   return (
     <>
-        <div className="columns-1 sm:columns-2 gap-2 w-full bg-blk-md">
+        <div className="columns-1 sm:columns-2 gap-2 w-full bg-blk-md min-h-[80vh]">
             {snippets.map((snippet) => {
                 const result = hljs.highlightAuto(snippet.code);
                 return (

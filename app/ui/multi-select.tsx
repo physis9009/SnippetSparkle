@@ -37,7 +37,7 @@ export default function MultiSelect({ options, selected, onChange, placeholder }
   };
 
   return (
-    <div ref={containerRef} className="relative w-[180px] text-xs">
+    <div ref={containerRef} className="relative w-[180px] text-xs hover:shadow hover:shadow-[#5a5a5a]">
       <div
         onClick={() => setOpen(!open)}
         className="h-[30px] bg-blk rounded-sm p-1 flex flex-wrap overflow-y-auto gap-1 cursor-pointer items-center custom-scrollbar"

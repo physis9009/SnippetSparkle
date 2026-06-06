@@ -6,7 +6,7 @@ import { fetchTagMap } from '../lib/data';
 export default async function CardFlow({ snippets, userName, userId }: { snippets: Snippet[], userName: string | null | undefined, userId: string | undefined}) {
   if (!snippets || snippets.length === 0) {
     return (
-      <div className="p-4 text-wht-gr text-sm text-center">
+      <div className="p-4 text-wht-gr text-sm text-center min-h-[80vh]">
         No snippet found.
       </div>
     );
