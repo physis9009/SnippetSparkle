@@ -23,8 +23,9 @@ export function NewSnippetForm({tags}: {tags: {
                         id="language" name="language"
                         className='bg-blk ml-2 hover:cursor-pointer rounded-sm hover:shadow-blk-gr hover:shadow'
                         aria-describedby='langauge-error'
+                        defaultValue=""
                     >
-                        <option disabled selected>--Select--</option>
+                        <option disabled value=''>--Select--</option>
                         {supportedLanguages.map((lan) => (
                             <option key={lan} value={lan}>{lan}</option>
                         ))}
@@ -67,7 +68,7 @@ export function NewSnippetForm({tags}: {tags: {
                     {formState.errors?.summary && formState.errors.summary.map((error) => <span key={error}>{error}</span>)}
                 </div>
 
-                <div className="col-start-1 col-span-4 grid grid-cols-1 gap-2 items-start" aria-describedby='tags-error'>
+                <div className="col-start-1 col-span-4 grid grid-cols-1 gap-2 items-start w-[90%]" aria-describedby='tags-error'>
                     <span>Tags: </span>
                     <div className='flex flex-row flex-wrap gap-4 overflow-y-auto px-4 py-2 max-h-[30vh] custom-scrollbar bg-blk rounded-sm'>
                         {tags.map((tag) => (

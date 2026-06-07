@@ -4,11 +4,15 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useSession } from "next-auth/react";
 import { signOutAction } from "../lib/actions";
+import {animate, scrambleText, JSAnimation} from "animejs";
+import { useRef } from "react";
 
 export default function Page() {
     const pathname = usePathname();
     const {data: session, status} = useSession();
     const hasUser = status === 'authenticated' && session?.user?.id;
+    const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+    const animationRefs = useRef<Record<string, JSAnimation | null>>({});
 
     const links = [
         {name: "Home", href: "/"},
@@ -16,6 +20,38 @@ export default function Page() {
         {name: "My Shares", href: hasUser ? `/${session.user!.id}/my-shares` : "/login"},
         {name: "New", href: hasUser ? `/${session.user!.id}/new` : "/login"}
     ];
+
+    
+    const handleMouseEnter = (linkName: string, href: string) => {
+        const element = linkRefs.current[linkName];
+        
+        if (element && pathname !== href) {
+            if (animationRefs.current[linkName]) {
+                animationRefs.current[linkName].revert();
+                element.textContent = linkName;
+            }
+            const anm = animate(element, {
+                innerHTML: scrambleText({
+                    text: element.textContent,
+                }),
+                loop: false,
+                loopDelay: 200,
+            });
+            animationRefs.current[linkName] = anm;
+        }
+    };
+
+    const handleMouseLeave = (linkName: string, href: string) => {
+        if (!animationRefs.current) return;
+        const element = linkRefs.current[linkName];
+        const anm = animationRefs.current[linkName];
+        if (anm) {
+            anm.revert();            
+            if (element && pathname !== href) {
+                element.textContent = linkName;  
+            }
+        }
+    };
 
     let authButton = null;
     if (status === 'loading') {
@@ -37,9 +73,12 @@ export default function Page() {
     return (
         <>
             {links.map((link) => (
-                <Link key={link.name} href={link.href}
+                <Link key={link.name} href={link.href} 
+                onMouseEnter={() => handleMouseEnter(link.name, link.href)}
+                onMouseLeave={() => handleMouseLeave(link.name, link.href)}
+                ref={(el) => { linkRefs.current[link.name] = el; }}
                 className={clsx(
-                    "w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center border-b-1 border-b-[#5a5a5a]", 
+                    `${link.name.toLowerCase()}-link w-[90%] rounded-sm sm:pt-2 sm:pb-2 text-center border-b-1 border-b-[#5a5a5a]`, 
                     [pathname === link.href && 'bg-blk text-[#5a5a5a] cursor-default italic pointer-events-none'], 
                     [pathname !== link.href && 'hover:text-wht hover:bg-blk-gr']
                 )}>
