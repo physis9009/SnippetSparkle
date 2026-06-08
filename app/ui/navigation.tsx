@@ -22,7 +22,7 @@ export default function Navigation() {
         <SessionProvider>
             <nav className={`
                 ${shareTech.className} text-xl shrink-0 border-b-2 sm:border-r-4 border-blk-gr
-                w-full max-h-10 bg-blk-md sm:h-full sm:max-w-30 sm:max-h-none
+                w-full max-h-20 bg-blk-md sm:h-full sm:max-w-30 sm:max-h-none
                 flex flex-row sm:flex-col justify-start items-center gap-4
             `}>
                 <div className="rounded-sm w-[10vw] h-full sm:w-full sm:h-[10vh] relative shrink-0 sm:mb-3 sm:mt-2">
