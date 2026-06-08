@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 p-4 mb-2">
             <h4 className="border-l-pnk-gr border-l-2 h-6 px-2 text-sm">License</h4>
             <ul className="px-4 gird grid-cols-1 gap-y-6">
-                <li><Link href="https://github.com/physis9009/PMP" className="italic text-grn-gr hover:text-grn py-2">MIT License</Link></li>
+                <li><Link href="https://github.com/physis9009/SnippetSparkle/blob/main/LICENSE" className="italic text-grn-gr hover:text-grn py-2">CC BY-NC-SA 4.0 license</Link></li>
                 <li className="py-2">© 2026 SnippetSparkle</li>
             </ul>
         </div>

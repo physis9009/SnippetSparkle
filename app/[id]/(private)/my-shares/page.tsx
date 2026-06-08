@@ -2,6 +2,11 @@ import CardFlow from '@/app/ui/cardflow';
 import { fetchMine } from '@/app/lib/data';
 import Pagination from '@/app/ui/pagination';
 import {auth} from '@/auth';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "My Shares",
+};
 
 type SearchParams = Promise<{
   lang?: string | string[];

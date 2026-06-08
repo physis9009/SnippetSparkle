@@ -2,6 +2,11 @@ import CardFlow from '@/app/ui/cardflow';
 import { fetchStarred } from '@/app/lib/data';
 import Pagination from '@/app/ui/pagination';
 import {auth} from '@/auth';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Starred",
+};
 
 type SearchParams = Promise<{
   lang?: string | string[];

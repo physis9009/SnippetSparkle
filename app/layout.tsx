@@ -11,8 +11,19 @@ const spaceMono = Space_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Practice Makes Perfect",
-  description: "",
+  title: {
+    template: "%s | Snippet Sparkle",
+    default: "Snippet Sparkle",
+  },
+  description: "A secure personal snippet sharing app with login, favorites, and searchable collections.",
+  keywords: ['code snippets', 'snippet sharing', 'personal library', 'favorites', 'search', 'authentication', 'login', 'Next.js', 'web app', 'productivity'],
+  creator: 'Wynn Wang',
+  openGraph: {
+    title: "Snippet Sparkle",
+    description: "A secure personal snippet sharing app with login, favorites, and searchable collections.",
+    siteName: 'SnippetSparkle',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
