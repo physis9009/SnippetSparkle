@@ -12,11 +12,10 @@ export interface HighlightedSnip extends Snippet {
     result: AutoHighlightResult;
 }
 
-export function CardFlowClient({ snippets, userName, userId, starCountsMap, tagMap }: { 
+export function CardFlowClient({ snippets, userName, userId, tagMap }: { 
     snippets: Snippet[];
     userName: string | null | undefined;
     userId: string | undefined;
-    starCountsMap: {[k: string]: number};
     tagMap: Record<string, string>;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,7 +45,7 @@ export function CardFlowClient({ snippets, userName, userId, starCountsMap, tagM
                     </pre>
                     <div className='absolute flex flex-row right-2 bottom-2 text-wht-gr text-xs z-50 bg-blk-md/90 rounded-sm'>
                         <span className='px-2'>{snippet.language}</span>
-                        <StarCorner starCount={starCountsMap[snippet.id]}/>
+                        <StarCorner starCount={snippet.star_count}/>
                     </div>
                 </div>
                 );

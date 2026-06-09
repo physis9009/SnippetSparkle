@@ -7,6 +7,7 @@ export type Snippet = {
   tags?: string[];
   created_at: string; // ISO 日期字符串
   created_by: string;
+  star_count: number;
 };
 
 export type Tag = {

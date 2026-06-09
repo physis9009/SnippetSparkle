@@ -13,7 +13,7 @@ export function NewSnippetForm({tags}: {tags: {
     const [formState, formAction, isPending] = useActionState<FormState, FormData>(creatSnippet, {success: false, errors: null, message: null});
 
     return (
-        <form action={formAction} className='w-full bg-blk-md flex flex-col items-center overflow-y-auto custom-scrollbar'>
+        <form action={formAction} className='w-full bg-blk-md flex flex-col items-center overflow-y-auto custom-scrollbar pb-4'>
             <fieldset className='grid grid-cols-4 w-[90%] justify-items-center content-start gap-4 
             border-x-0 border-y-blk-gr border-y-2 rounded-lg mb-4 pb-4'>
                 <legend className='col-span-2 col-start-2 py-4 text-center text-2xl'>Create a new snippet</legend>
@@ -93,7 +93,7 @@ export function NewSnippetForm({tags}: {tags: {
             </fieldset>
 
             {isPending
-                ? <MorphingInfinity />
+                ? <MorphingInfinity className='size-10' />
                 : <button type="submit" className='bg-grn-gr hover:bg-grn rounded-sm p-1 hover:cursor-pointer' aria-describedby='submit-error'>Submit</button>
             }
 

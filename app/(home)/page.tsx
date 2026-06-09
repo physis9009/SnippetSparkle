@@ -1,5 +1,5 @@
 import CardFlow from '@/app/ui/cardflow';
-import { fetchSnippets } from '@/app/lib/data';
+import { fetchSnippetsInPage, fetchTagMap, fetchSnippetsCount } from '@/app/lib/data';
 import Pagination from '../ui/pagination';
 import {auth} from '@/auth';
 
@@ -14,10 +14,8 @@ type SearchParams = Promise<{
 const ITEMS_PER_PAGE = 10;
 
 export default async function CardFlowPage({ searchParams }: { searchParams: SearchParams }) {
+  // get filter
   const params = await searchParams; 
-  const session = await auth();
-  const userName = session?.user?.name;
-  const userId = session?.user?.id;
 
   const languages = params?.lang
     ? (Array.isArray(params.lang) ? params.lang : [params.lang])
@@ -26,26 +24,29 @@ export default async function CardFlowPage({ searchParams }: { searchParams: Sea
     ? (Array.isArray(params.tag) ? params.tag : [params.tag])
     : undefined;
 
-  const snippets = await fetchSnippets({
+  const filter = {
     languages,
     tags,
     startDate: params?.start,
     endDate: params?.end,
-  });
+  };
 
-  const totalPages = Math.ceil(snippets.length / ITEMS_PER_PAGE);
-
+  // get snippets count, totalPages and currentPage
+  const snippetsCount = await fetchSnippetsCount(filter);
+  const totalPages = Math.ceil(snippetsCount / ITEMS_PER_PAGE);
   const currentPage = Math.min(
     Math.max(1, Number(params?.page) || 1),
     totalPages || 1
   );
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pagedSnippets = snippets.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const [snippets, session, tagMap] = await Promise.all([fetchSnippetsInPage(currentPage, filter), auth(), fetchTagMap()]);
+
+  const userName = session?.user?.name;
+  const userId = session?.user?.id;
 
   return (
     <>
-      <CardFlow snippets={pagedSnippets} userName={userName} userId={userId}/>
+      <CardFlow snippets={snippets} userName={userName} userId={userId} tagMap={tagMap}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
       </div>

@@ -48,6 +48,81 @@ export async function fetchSnippets(filters?: SnippetFilters): Promise<Snippet[]
   }
 }
 
+export async function fetchSnippetsCount(filters?: SnippetFilters): Promise<number> {
+  try {
+    const conditions = [];
+
+    if (filters?.languages?.length) {
+      conditions.push(sql`language = ANY(${filters.languages})`);
+    }
+    if (filters?.tags?.length) {
+      conditions.push(sql`tags && ${filters.tags}::text[]`);
+    }
+    if (filters?.startDate) {
+      conditions.push(sql`created_at >= ${filters.startDate}::timestamp`);
+    }
+    if (filters?.endDate) {
+      conditions.push(sql`created_at < ${filters.endDate}::date + interval '1 day'`);
+    }
+
+    let query;
+    if (conditions.length > 0) {
+      const whereClause = conditions.reduce((prev, curr, idx) => {
+        if (idx === 0) return curr;
+        return sql`${prev} AND ${curr}`;
+      });
+      query = sql<{count: string}[]>`SELECT COUNT(*) FROM snippets WHERE ${whereClause}`;
+    } else {
+      query = sql<{count: string}[]>`SELECT COUNT(*) FROM snippets`;
+    }
+
+    const result = await query;
+    return Number(result[0].count);
+  } catch (error) {
+    console.error('Error fetching snippets:', error);
+    return 0;
+  }
+}
+
+export async function fetchSnippetsInPage(currentPage: number, filters?: SnippetFilters): Promise<Snippet[]> {
+  const limit = 10;
+  const offset = (currentPage - 1) * limit;
+
+  try {
+    const conditions = [];
+
+    if (filters?.languages?.length) {
+      conditions.push(sql`language = ANY(${filters.languages})`);
+    }
+    if (filters?.tags?.length) {
+      conditions.push(sql`tags && ${filters.tags}::text[]`);
+    }
+    if (filters?.startDate) {
+      conditions.push(sql`created_at >= ${filters.startDate}::timestamp`);
+    }
+    if (filters?.endDate) {
+      conditions.push(sql`created_at < ${filters.endDate}::date + interval '1 day'`);
+    }
+
+    let query;
+    if (conditions.length > 0) {
+      const whereClause = conditions.reduce((prev, curr, idx) => {
+        if (idx === 0) return curr;
+        return sql`${prev} AND ${curr}`;
+      });
+      query = sql<Snippet[]>`SELECT * FROM snippets WHERE ${whereClause} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+    } else {
+      query = sql<Snippet[]>`SELECT * FROM snippets ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`;
+    }
+
+    const snippets = await query;
+    return snippets;
+  } catch (error) {
+    console.error('Error fetching snippets:', error);
+    return [];
+  }
+}
+
 export async function fetchLanguages(): Promise<string[]> {
   'use cache';
   cacheLife('hours');
@@ -108,7 +183,54 @@ export async function fetchStarCountsAll(snippetsId: string[]) {
   }
 }
 
-export async function fetchStarred(userId: string, filters?: SnippetFilters): Promise<Snippet[]> {
+export async function fetchStarredCount(userId: string, filters?: SnippetFilters): Promise<number> {
+  try {
+    const conditions = [];
+
+    if (filters?.languages?.length) {
+      conditions.push(sql`language = ANY(${filters.languages})`);
+    }
+    if (filters?.tags?.length) {
+      conditions.push(sql`tags && ${filters.tags}::text[]`);
+    }
+    if (filters?.startDate) {
+      conditions.push(sql`created_at >= ${filters.startDate}::timestamp`);
+    }
+    if (filters?.endDate) {
+      conditions.push(sql`created_at < ${filters.endDate}::date + interval '1 day'`);
+    }
+
+    let query;
+    if (conditions.length > 0) {
+      const whereClause = conditions.reduce((prev, curr, idx) => {
+        if (idx === 0) return curr;
+        return sql`${prev} AND ${curr}`;
+      });
+      query = sql<{count: string}[]>`
+        SELECT COUNT(*) FROM snippets s
+        INNER JOIN user_starred_snippets us ON s.id = us.snippet_id
+        WHERE us.user_id = ${userId} AND ${whereClause}
+      `;
+    } else {
+      query = sql<{count: string}[]>`
+        SELECT COUNT(*) FROM snippets s
+        INNER JOIN user_starred_snippets us ON s.id = us.snippet_id
+        WHERE us.user_id = ${userId}
+      `;
+    }
+
+    const result = await query;
+    return Number(result[0].count);
+  } catch (error) {
+    console.error('Error fetching snippets:', error);
+    return 0;
+  }
+}
+
+export async function fetchStarred(currentPage: number, userId: string, filters?: SnippetFilters): Promise<Snippet[]> {
+  const limit = 10;
+  const offset = (currentPage - 1) * limit;
+
   try {
     const conditions = [];
 
@@ -132,21 +254,23 @@ export async function fetchStarred(userId: string, filters?: SnippetFilters): Pr
       });
 
       const result = await sql<Snippet[]>`
-        SELECT s.id, s.title, s.language, s.summary, s.code, s.tags, s.created_at, us.starred_at
+        SELECT *
         FROM snippets s
         INNER JOIN user_starred_snippets us ON s.id = us.snippet_id
         WHERE us.user_id = ${userId} AND ${whereClause}
         ORDER BY us.starred_at DESC
+        LIMIT ${limit} OFFSET ${offset}
       `;
 
       return result;
     } else {
       const result = await sql<Snippet[]>`
-        SELECT s.id, s.title, s.language, s.summary, s.code, s.tags, s.created_at, us.starred_at
+        SELECT *
         FROM snippets s
         INNER JOIN user_starred_snippets us ON s.id = us.snippet_id
         WHERE us.user_id = ${userId}
         ORDER BY us.starred_at DESC
+        LIMIT ${limit} OFFSET ${offset}
       `;
 
       return result;
@@ -157,7 +281,46 @@ export async function fetchStarred(userId: string, filters?: SnippetFilters): Pr
   }
 }
 
-export async function fetchMine(userId: string, filters?: SnippetFilters) {
+export async function fetchMineCount(userId: string, filters?: SnippetFilters): Promise<number> {
+  try {
+    const conditions = [];
+
+    if (filters?.languages?.length) {
+      conditions.push(sql`language = ANY(${filters.languages})`);
+    }
+    if (filters?.tags?.length) {
+      conditions.push(sql`tags && ${filters.tags}::text[]`);
+    }
+    if (filters?.startDate) {
+      conditions.push(sql`created_at >= ${filters.startDate}::timestamp`);
+    }
+    if (filters?.endDate) {
+      conditions.push(sql`created_at < ${filters.endDate}::date + interval '1 day'`);
+    }
+
+    let query;
+    if (conditions.length > 0) {
+      const whereClause = conditions.reduce((prev, curr, idx) => {
+        if (idx === 0) return curr;
+        return sql`${prev} AND ${curr}`;
+      });
+      query = sql<{count: string}[]>`SELECT COUNT(*) FROM snippets WHERE created_by = ${userId} AND ${whereClause}`;
+    } else {
+      query = sql<{count: string}[]>`SELECT COUNT(*) FROM snippets WHERE created_by = ${userId}`;
+    }
+
+    const result = await query;
+    return Number(result[0].count);
+  } catch (error) {
+    console.error('Error fetching snippets:', error);
+    return 0;
+  }
+}
+
+export async function fetchMine(currentPage: number, userId: string, filters?: SnippetFilters) {
+  const limit = 10;
+  const offset = (currentPage - 1) * limit;
+
   try {
     const conditions = [];
 
@@ -181,19 +344,21 @@ export async function fetchMine(userId: string, filters?: SnippetFilters) {
       });
 
       const result = await sql<Snippet[]>`
-        SELECT id, title, language, summary, code, tags, created_at
+        SELECT *
         FROM snippets
         WHERE created_by = ${userId} AND ${whereClause}
         ORDER BY created_at DESC
+        LIMIT ${limit} OFFSET ${offset}
       `;
 
       return result;
     } else {
       const result = await sql<Snippet[]>`
-        SELECT id, title, language, summary, code, tags, created_at
+        SELECT *
         FROM snippets
         WHERE created_by = ${userId}
         ORDER BY created_at DESC
+        LIMIT ${limit} OFFSET ${offset}
       `;
 
       return result;

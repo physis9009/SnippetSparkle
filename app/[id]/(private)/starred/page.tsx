@@ -1,11 +1,11 @@
 import CardFlow from '@/app/ui/cardflow';
-import { fetchStarred } from '@/app/lib/data';
+import { fetchStarredCount, fetchStarred, fetchTagMap } from '@/app/lib/data';
 import Pagination from '@/app/ui/pagination';
 import {auth} from '@/auth';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: "Starred",
+    title: "My Shares",
 };
 
 type SearchParams = Promise<{
@@ -19,7 +19,6 @@ type SearchParams = Promise<{
 const ITEMS_PER_PAGE = 10;
 
 export default async function StarredPage({ searchParams }: { searchParams: SearchParams }) {
-  
   const params = await searchParams; 
 
   const languages = params?.lang
@@ -29,37 +28,38 @@ export default async function StarredPage({ searchParams }: { searchParams: Sear
     ? (Array.isArray(params.tag) ? params.tag : [params.tag])
     : undefined;
 
-  const session = await auth();
-  const userId = session?.user?.id;
-  const userName = session?.user?.name;
-
-  if (userId) {const snippets = await fetchStarred(userId, {
+  const filter = {
     languages,
     tags,
     startDate: params?.start,
     endDate: params?.end,
-  });
+  };
 
-  const totalPages = Math.ceil(snippets.length / ITEMS_PER_PAGE);
+  const session = await auth();
+  const userId = session?.user?.id;
+  const userName = session?.user?.name;
 
-  const currentPage = Math.min(
-    Math.max(1, Number(params?.page) || 1),
-    totalPages || 1
-  );
+  if (userId) {
+    const snippetsCount = await fetchStarredCount(userId, filter);
+    const totalPages = Math.ceil(snippetsCount / ITEMS_PER_PAGE);
+    const currentPage = Math.min(
+      Math.max(1, Number(params?.page) || 1),
+      totalPages || 1
+    );
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pagedSnippets = snippets.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  return (
+    const [snippets, tagMap] = await Promise.all([fetchStarred(currentPage, userId, filter), fetchTagMap()]);
+    
+    return (
+      <>
+        <CardFlow snippets={snippets} userName={userName} userId={userId} tagMap={tagMap}/>
+        <div className="flex justify-center my-4">
+          <Pagination totalPages={totalPages}/>
+        </div>
+      </>
+    );
+  } else return (
     <>
-      <CardFlow snippets={pagedSnippets} userName={userName} userId={userId}/>
-      <div className="flex justify-center my-4">
-        <Pagination totalPages={totalPages}/>
-      </div>
-    </>
-  );} else return (
-    <>
-      <CardFlow snippets={[]} userName={userName} userId={userId}/>
+      <CardFlow snippets={[]} userName={undefined} userId={undefined} tagMap={{}}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={1}/>
       </div>
