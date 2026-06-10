@@ -130,14 +130,11 @@ export async function creatSnippet(prevState: FormState, formData: FormData) {
   return {success: true};
 }
 
-export async function toggleStar(snippetId: string) {
-  const session = await auth();
-
-  if (!session?.user?.id) {
+export async function toggleStar(userId: string | undefined, snippetId: string) {
+  if (!userId) {
     throw new Error("Need to log in to star a snippet.");
   }
 
-  const userId = session.user.id;
   const existing = await sql`
     SELECT 1 FROM user_starred_snippets WHERE user_id = ${userId} AND snippet_id = ${snippetId}
   `;

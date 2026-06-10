@@ -4,7 +4,7 @@ import { checkIfStarred } from '../lib/actions';
 import {useState, useEffect} from 'react';
 
 export function DetailedSnippet({snippet, userName, userId, isOpen, doClose, tagMap}: {snippet: HighlightedSnip | null; userName: string | undefined | null; userId: string | undefined; isOpen: boolean; doClose: () => void; tagMap: Record<string, string>;}) {
-    const [isStarred, setIsStarred] = useState(false);
+    const [isStarred, setIsStarred] = useState<boolean | null>(null);
 
     useEffect(() => {
         if (isOpen && snippet && userId) {
