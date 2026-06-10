@@ -2,6 +2,7 @@ import CardFlow from '@/app/ui/cardflow';
 import { fetchSnippetsInPage, fetchTagMap, fetchSnippetsCount } from '@/app/lib/data';
 import Pagination from '../ui/pagination';
 import {auth} from '@/auth';
+import { highlightSnippets } from '../lib/utils';
 
 type SearchParams = Promise<{
   lang?: string | string[];
@@ -41,12 +42,14 @@ export default async function CardFlowPage({ searchParams }: { searchParams: Sea
 
   const [snippets, session, tagMap] = await Promise.all([fetchSnippetsInPage(currentPage, filter), auth(), fetchTagMap()]);
 
+  const highlightedSnippets = highlightSnippets(snippets);
+
   const userName = session?.user?.name;
   const userId = session?.user?.id;
 
   return (
     <>
-      <CardFlow snippets={snippets} userName={userName} userId={userId} tagMap={tagMap}/>
+      <CardFlow snippets={highlightedSnippets} userName={userName} userId={userId} tagMap={tagMap}/>
       <div className="flex justify-center my-4">
         <Pagination totalPages={totalPages}/>
       </div>

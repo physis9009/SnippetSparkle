@@ -1,8 +1,8 @@
-import { Snippet } from '@/app/lib/definitions';
+import { SnippetWithHighlight } from '@/app/lib/definitions';
 import {CardFlowClient} from './cardflow-client';
 
 export default async function CardFlow({ snippets, userName, userId, tagMap }: { 
-  snippets: Snippet[];
+  snippets: SnippetWithHighlight[];
   userName: string | null | undefined;
   userId: string | undefined;
   tagMap: Record<string, string>;

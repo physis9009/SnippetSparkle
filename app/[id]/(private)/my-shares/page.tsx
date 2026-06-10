@@ -3,6 +3,7 @@ import { fetchMineCount, fetchMine, fetchTagMap } from '@/app/lib/data';
 import Pagination from '@/app/ui/pagination';
 import {auth} from '@/auth';
 import { Metadata } from 'next';
+import { highlightSnippets } from '@/app/lib/utils';
 
 export const metadata: Metadata = {
     title: "My Shares",
@@ -48,10 +49,12 @@ export default async function StarredPage({ searchParams }: { searchParams: Sear
     );
 
     const [snippets, tagMap] = await Promise.all([fetchMine(currentPage, userId, filter), fetchTagMap()]);
+
+    const highlightedSnippets = highlightSnippets(snippets);
     
     return (
       <>
-        <CardFlow snippets={snippets} userName={userName} userId={userId} tagMap={tagMap}/>
+        <CardFlow snippets={highlightedSnippets} userName={userName} userId={userId} tagMap={tagMap}/>
         <div className="flex justify-center my-4">
           <Pagination totalPages={totalPages}/>
         </div>

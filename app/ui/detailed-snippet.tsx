@@ -28,7 +28,7 @@ export function DetailedSnippet({snippet, userName, userId, isOpen, doClose, tag
                 </div>
 
                 <pre className='bg-blk w-[98%] max-h-[80%] min-h-[50%] overflow-y-auto border-b-blk-gr px-4 py-2 custom-scrollbar rounded-sm'>
-                    <code dangerouslySetInnerHTML={{ __html: snippet.result.value }} className='whitespace-pre-wrap wrap-break-word'/>
+                    <code dangerouslySetInnerHTML={{ __html: snippet.htmlContent }} className='whitespace-pre-wrap wrap-break-word'/>
                 </pre>
 
                 <div className='flex flex-row justify-center items-center content-center my-2'>
